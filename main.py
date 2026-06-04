@@ -582,7 +582,7 @@ def profile_page() -> None:
 
 def help_page() -> None:
     st.markdown("## Help & Support")
-    st.success("Puedes agregar aquí FAQs, soporte por WhatsApp, correo y tickets.")
+    st.success("Puedes agregar aquí FAQs, soporte por Facebook, correo y tickets.")
 
 
 def logout_page() -> None:
