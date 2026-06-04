@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-APP_NAME = "Equus Document Portal"
+APP_NAME = "CAS Document Portal"
 
 
 def inject_css() -> None:
@@ -109,9 +109,29 @@ def inject_css() -> None:
             display:inline-flex; align-items:center; gap:.35rem; border-radius:999px; padding:.32rem .7rem;
             font-size:.82rem; font-weight:700; border:1px solid transparent; white-space:nowrap;
         }
-        .status-completed { background:#e0efde; color:#1b5936; border-color:#c0ddbd; }
-        .status-missing   { background:#fff0e7; color:#c85e22; border-color:#ffd1b7; }
-        .status-locked    { background:#ececec; color:#636363; border-color:#dadada; }
+        .status-completed {
+    background:#e0efde;
+    color:#1b5936;
+    border-color:#c0ddbd;
+}
+
+.status-missing {
+    background:#fff0e7;
+    color:#c85e22;
+    border-color:#ffd1b7;
+}
+
+.status-locked {
+    background:#fff5ee;
+    color:#d97706;
+    border-color:#fed7aa;
+}
+
+.status-ready {
+    background:#e7f3e7;
+    color:#1b5936;
+    border-color:#b9d8b9;
+}
         .rule-box {
             background:rgba(245,248,243,.95); border:1px dashed rgba(21,79,49,.16);
             border-radius:14px; padding:.85rem .9rem; margin-top:.75rem;
@@ -216,7 +236,7 @@ STAGES: List[Dict[str, Any]] = [
 
 def init_state() -> None:
     st.session_state.setdefault("page", "Dashboard")
-    st.session_state.setdefault("expanded_stage", 2)
+    st.session_state.setdefault("expanded_stage", 0)
     st.session_state.setdefault("validation", {})
 
 
@@ -263,16 +283,16 @@ def validate_uploaded_file(uploaded_file, rule: FileRule) -> Tuple[bool, str]:
         if ext == "csv":
             text = raw.decode("utf-8", errors="ignore")
             reader = csv.DictReader(io.StringIO(text))
-            headers = [h.strip().lower() for h in (reader.fireldnames or [])]
+            headers = [h.strip().lower() for h in (reader.fieldnames or [])]
             missing = [f for f in rule.required_fields if f.lower() not in headers]
             return (len(missing) == 0, "CSV válido y con columnas requeridas." if not missing else f"Faltan columnas: {', '.join(missing)}")
-        text = _bytes_to_text(raw, ext).lower()
+        text = _bytes_to_text(raw).lower()
         missing = [f for f in rule.required_fields if f.lower() not in text]
         return (len(missing) == 0, f"Archivo válido. Se encontraron los campos requeridos: {', '.join(rule.required_fields)}" if not missing else f"Faltan campos detectables en el contenido: {', '.join(missing)}")
     except json.JSONDecodeError:
         return False, "El archivo JSON no tiene un formato válido."
     except Exception as exc:
-        return False, str(exc)
+        return False, str("")
 
 
 def stage_status(stage: Dict[str, Any]) -> Tuple[str, str]:
@@ -305,7 +325,7 @@ def render_sidebar() -> None:
             <div class="brand-box">
                 <div class="brand-logo">♞</div>
                 <div>
-                    <div class="brand-title">EQUUS</div>
+                    <div class="brand-title">CAS</div>
                     <div class="brand-subtitle">DOCUMENT PORTAL</div>
                 </div>
             </div>
@@ -349,8 +369,8 @@ def render_topbar() -> None:
             """
             <div class="top-icons">
                 <div style="font-size:1.2rem;">🔔</div>
-                <div class="icon-pill">JD</div>
-                <div style="font-weight:600;">John Doe ▾</div>
+                <div class="icon-pill">GB</div>
+                <div style="font-weight:600;">Gabo Blanco</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -367,14 +387,14 @@ def render_status_panel() -> None:
             <div class="glass-card">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
                     <div class="stat-title">Your Process Progress</div>
-                    <div class="status-chip status-completed">Step {min(done // 3 + 1, 5)} of 5</div>
+                    <div class="status-chip status-completed">Step {min(done+2 // 3 + 1, 5)} of 5</div>
                 </div>
                 <div style="height:12px; margin:.9rem 0 .5rem 0; background:#e7eadf; border-radius:999px; overflow:hidden;">
-                    <div style="width:{pct}%; height:100%; background:linear-gradient(90deg, #1d5a39 0%, #134228 100%); border-radius:999px;"></div>
+                    <div style="width:{20}%; height:100%; background:linear-gradient(90deg, #1d5a39 0%, #134228 100%); border-radius:999px;"></div>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div class="tiny">Please upload all required documents to move forward.</div>
-                    <div style="font-weight:800; color:#18402a;">{pct}%</div>
+                    <div style="font-weight:800; color:#18402a;">{pct+20}%</div>
                 </div>
             </div>
             """,
@@ -382,17 +402,21 @@ def render_status_panel() -> None:
         )
     with c2:
         st.markdown(
-            """
-            <div class="soft-card">
-                <div class="stat-title">Need Help?</div>
-                <div class="stat-meta">Contact our support team on WhatsApp.</div>
-                <div style="margin-top:.9rem;">
-                    <button style="width:100%; border:none; border-radius:14px; padding:.8rem .9rem; background:white; color:#134228; font-weight:700; box-shadow:0 8px 18px rgba(0,0,0,.06);">💬 Chat on WhatsApp</button>
-                </div>
+        """
+        <div class="soft-card">
+            <div class="stat-title">Need Help?</div>
+            <div class="stat-meta">Contact our support team on WhatsApp.</div>
+            <div style="margin-top:.9rem;">
+                <a href="https://www.facebook.com/cascostarica1" target="_blank" style="text-decoration:none;">
+                    <button style="width:100%; border:none; border-radius:14px; padding:.8rem .9rem; background:white; color:#134228; font-weight:700; box-shadow:0 8px 18px rgba(0,0,0,.06); cursor:pointer;">
+                        💬 Chat on Facebook
+                    </button>
+                </a>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_process_summary() -> None:
@@ -418,7 +442,19 @@ def render_stage_card(stage: Dict[str, Any]) -> None:
     status, _ = stage_status(stage)
     active = st.session_state.expanded_stage == stage_id
     status_class = {"completed": "status-completed", "missing": "status-missing", "locked": "status-locked"}[status]
-    chip_text = {"completed": "Completed ✓", "missing": "Missing Document", "locked": "Locked"}[status]
+    unlocked = is_stage_unlocked(stage_id)
+
+    if status == "completed":
+        chip_text = "Completed ✓"
+        status_class = "status-completed"
+
+    elif unlocked:
+        chip_text = "Ready to upload 📤"
+        status_class = "status-ready"
+
+    else:
+        chip_text = "Locked 🔒"
+        status_class = "status-locked"
 
     c1, c2 = st.columns([11, 1], vertical_alignment="center")
     with c1:
@@ -439,10 +475,16 @@ def render_stage_card(stage: Dict[str, Any]) -> None:
             """,
             unsafe_allow_html=True,
         )
-    with c2:
-        if st.button("›", key=f"toggle_{stage_id}", help="Abrir/cerrar etapa"):
-            st.session_state.expanded_stage = 0 if active else stage_id
+    unlocked = is_stage_unlocked(stage_id)
 
+    with c2:
+        if st.button(
+            "›",
+            key=f"toggle_{stage_id}",
+            disabled=not unlocked,
+            help="Open stage" if unlocked else "Complete the previous step first",
+        ):
+            st.session_state.expanded_stage = 0 if active else stage_id
     if active:
         st.markdown(
             """
@@ -466,7 +508,7 @@ def render_stage_card(stage: Dict[str, Any]) -> None:
                     unsafe_allow_html=True,
                 )
                 uploaded = st.file_uploader(
-                    f"### Botón subir archivos — {rule.label}",
+                    f"A",
                     type=["pdf"],
                     key=f"u_{stage_id}_{rule.key}",
                     label_visibility="visible",
@@ -479,11 +521,11 @@ def render_stage_card(stage: Dict[str, Any]) -> None:
                 if result:
                     st.caption(("✅ " if result["ok"] else "❌ ") + result["file_name"])
                 else:
-                    st.caption("Pendiente de carga.")
+                    st.caption("Upload File to start checking.")
                 st.markdown(
                     f"""
                     <div class="rule-box">
-                        <div class="tiny"><b>Reglas ewsperadas:</b></div>
+                        <div class="tiny"><b>Required information:</b></div>
                         <ul>{''.join([f'<li>{field}</li>' for field in (rule.required_fields or ['Sin campos de texto'])])}</ul>
                         <div class="tiny" style="margin-top:.35rem;"><b>Formatos:</b> {', '.join(rule.accepted_ext)}</div>
                     </div>
@@ -492,6 +534,14 @@ def render_stage_card(stage: Dict[str, Any]) -> None:
                 )
         st.markdown("<br>", unsafe_allow_html=True)
 
+def is_stage_unlocked(stage_id: int) -> bool:
+    if stage_id == 1:
+        return True
+
+    previous_stage = STAGES[stage_id - 2]  # stage IDs start at 1
+    status, _ = stage_status(previous_stage)
+
+    return status == "completed"
 
 def dashboard_page() -> None:
     render_topbar()
@@ -504,13 +554,13 @@ def dashboard_page() -> None:
         for stage in STAGES:
             render_stage_card(stage)
     with right:
-        render_process_summary()
+        # render_process_summary()
         st.write("")
         st.markdown(
             """
             <div class="soft-card">
                 <div class="stat-title">Your data is protected</div>
-                <div class="stat-meta">We use bank-level encryption to keep your documents safe.</div>
+                <div class="stat-meta">We use High-level encryption to keep your documents safe.</div>
             </div>
             """,
             unsafe_allow_html=True,
