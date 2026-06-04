@@ -323,7 +323,7 @@ def render_sidebar() -> None:
         st.markdown(
             """
             <div class="brand-box">
-                <div class="brand-logo">♞</div>
+                <div class="brand-logo">✈</div>
                 <div>
                     <div class="brand-title">CAS</div>
                     <div class="brand-subtitle">DOCUMENT PORTAL</div>
