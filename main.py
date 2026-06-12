@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import re
+import time
 import unicodedata
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
@@ -43,8 +44,20 @@ def inject_css() -> None:
         /* App shell */
         html, body, [class*="css"] { font-family: "Inter","Segoe UI",Arial,sans-serif; }
         .stApp { background:var(--cas-page); color:var(--cas-green-dark); }
-        #MainMenu, footer, header { visibility: hidden; }
-        .block-container { padding-top: 1.1rem; padding-bottom: 1rem; max-width: 1600px; }
+        #MainMenu, footer { visibility:hidden; }
+        header[data-testid="stHeader"] {
+            visibility:visible;
+            background:transparent;
+        }
+        [data-testid="stSidebarCollapsedControl"] button {
+            width:48px !important;
+            height:48px !important;
+            color:var(--cas-green) !important;
+            background:var(--cas-green-soft) !important;
+            border:1px solid var(--cas-green-border) !important;
+            border-radius:12px !important;
+        }
+        .block-container { padding-top:2.75rem; padding-bottom:1rem; max-width:1600px; }
 
         /* Sidebar */
         section[data-testid="stSidebar"] {
@@ -140,12 +153,14 @@ def inject_css() -> None:
         /* Upload cards */
         .upload-card {
             background:var(--cas-soft-card); border:1px solid rgba(21,79,49,.08);
-            border-radius:16px; padding:1rem; min-height:190px; margin-top:.1rem;
+            border-radius:16px; padding:1rem; min-height:220px; margin-top:.1rem;
             box-shadow:0 10px 24px rgba(57,57,57,.05);
+            display:flex; flex-direction:column;
         }
         .upload-card .stat-title { margin-bottom:.35rem; }
+        .upload-description { min-height:3.4rem; }
         .upload-meta {
-            margin-top:.8rem; padding-top:.7rem; border-top:1px solid rgba(21,79,49,.11);
+            margin-top:auto; padding-top:.7rem; border-top:1px solid rgba(21,79,49,.11);
         }
         .upload-meta ul { margin:.3rem 0 .45rem 1.05rem; padding:0; }
         .upload-meta li { margin:.12rem 0; font-size:.82rem; color:rgba(24,63,43,.78); }
@@ -162,10 +177,17 @@ def inject_css() -> None:
             color:var(--cas-green) !important;
             border:1px solid var(--cas-green-border) !important;
             box-shadow:none !important;
+            min-height:48px !important;
+            padding:.75rem 1rem !important;
+            font-size:1rem !important;
         }
         .stFileUploader section button:hover {
             background:var(--cas-green-hover) !important;
             border-color:#91be99 !important;
+        }
+        [data-testid="stFileUploaderFileName"],
+        [data-testid="stFileUploaderFile"] small {
+            color:var(--cas-green-dark) !important;
         }
 
         /* Stage arrow button and its Streamlit tooltip wrapper */
@@ -183,6 +205,8 @@ def inject_css() -> None:
             color:var(--cas-green) !important;
             border:1px solid var(--cas-green-border) !important;
             box-shadow:none !important;
+            min-width:48px !important;
+            min-height:48px !important;
         }
         button[data-testid="stTooltipHoverTarget"]:hover,
         button[class*="stTooltipHoverTarget"]:hover,
@@ -197,7 +221,56 @@ def inject_css() -> None:
         /* Shared Streamlit widgets */
         .stButton > button { border-radius:12px; border:none; padding:.68rem 1rem; font-weight:700; }
         .stProgress > div > div > div > div { background-color:var(--cas-green) !important; }
-        @media (max-width: 900px) { .greeting h1 { font-size:1.6rem; } }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .block-container {
+                padding:3.25rem .8rem 1.25rem .8rem;
+            }
+            h1, h2 { line-height:1.15 !important; }
+            .greeting h1 { font-size:1.55rem; }
+            .top-icons { justify-content:flex-start; flex-wrap:wrap; }
+            .glass-card, .soft-card { padding:1rem; border-radius:14px; }
+            .stage-card { padding:.85rem; margin-bottom:.45rem; }
+            .stage-head { align-items:flex-start; flex-direction:column; gap:.7rem; }
+            .stage-left { align-items:flex-start; gap:.7rem; }
+            .stage-badge { width:44px; height:44px; }
+            .stage-title { font-size:.98rem; }
+            .stage-desc { font-size:.88rem; }
+            .status-chip { align-self:flex-start; font-size:.78rem; }
+            .rule-box { margin-top:.5rem; padding:.8rem; }
+            .upload-card {
+                min-height:0;
+                padding:1rem;
+                margin-top:.35rem;
+            }
+            .upload-description { min-height:0; margin-bottom:.8rem; }
+            .stFileUploader section {
+                min-height:132px !important;
+                padding:1rem !important;
+            }
+            .stFileUploader section button {
+                width:100% !important;
+            }
+            [data-testid="stAlert"] { font-size:.9rem; }
+            [data-testid="stSidebar"] .stButton > button {
+                min-height:48px;
+                font-size:1rem;
+            }
+        }
+        @media (max-width: 700px) {
+            div[data-testid="stHorizontalBlock"] {
+                flex-direction:column !important;
+                gap:.75rem !important;
+            }
+            div[data-testid="column"] {
+                width:100% !important;
+                flex:1 1 100% !important;
+            }
+            [data-testid="stMain"] .stButton > button {
+                width:100% !important;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -435,7 +508,7 @@ def validation_key(stage_id: int, rule_key: str) -> Tuple[int, str]:
 
 
 def process_uploaded_file(stage_id: int, rule: FileRule) -> None:
-    """Prepare and validate the selected PDF, then persist it across reruns."""
+    """Prepare the selected PDF and mark it for visible validation."""
     widget_key = uploader_key(stage_id, rule.key)
     result_key = validation_key(stage_id, rule.key)
     uploaded_file = st.session_state.get(widget_key)
@@ -455,16 +528,53 @@ def process_uploaded_file(stage_id: int, rule: FileRule) -> None:
     )
     st.session_state.pending_uploads[result_key] = document
 
-    ok, message = validate_pdf(document.file_name, document.data, rule)
     st.session_state.validation[result_key] = {
-        "ok": ok,
-        "message": message,
+        "ok": None,
+        "message": "Preparando el PDF...",
         "file_name": document.file_name,
         "file_size": document.size,
         "sha256": document.sha256,
-        "progress": 100,
-        "storage_status": "ready" if ok else "blocked",
+        "progress": 10,
+        "processing": True,
+        "storage_status": "processing",
     }
+
+
+def finish_uploaded_file(
+    stage_id: int,
+    rule: FileRule,
+    progress_bar,
+) -> Dict[str, Any]:
+    """Show a short progress sequence, then validate the prepared PDF."""
+    result_key = validation_key(stage_id, rule.key)
+    document = st.session_state.pending_uploads[result_key]
+    steps = [
+        (25, "Cargando archivo..."),
+        (45, "Leyendo el PDF..."),
+        (65, "Buscando los campos requeridos..."),
+        (85, "Verificando la información..."),
+    ]
+
+    for progress, label in steps:
+        progress_bar.progress(progress, text=label)
+        time.sleep(0.25)
+
+    ok, message = validate_pdf(document.file_name, document.data, rule)
+    result = st.session_state.validation[result_key]
+    result.update(
+        {
+            "ok": ok,
+            "message": message,
+            "progress": 100,
+            "processing": False,
+            "storage_status": "ready" if ok else "blocked",
+        }
+    )
+    progress_bar.progress(
+        100,
+        text="Archivo listo" if ok else "Revisión completada",
+    )
+    return result
 
 
 # =============================================================================
@@ -612,7 +722,7 @@ def render_document_uploader(stage_id: int, rule: FileRule) -> None:
         f"""
         <div class="upload-card">
             <div class="stat-title">{rule.label}</div>
-            <div class="tiny">{rule.description}</div>
+            <div class="tiny upload-description">{rule.description}</div>
             <div class="upload-meta">
                 <div class="tiny"><b>Required information:</b></div>
                 <ul>{''.join([f'<li>{field.replace("_", " ")}</li>' for field in fields])}</ul>
@@ -626,10 +736,15 @@ def render_document_uploader(stage_id: int, rule: FileRule) -> None:
     if result:
         file_size = format_file_size(result.get("file_size", 0))
         st.caption(f"Loaded: {result['file_name']} ({file_size})")
-        st.progress(result.get("progress", 100))
+        progress_bar = st.progress(
+            result.get("progress", 10),
+            text=result.get("message", "Preparando el PDF..."),
+        )
+        if result.get("processing"):
+            result = finish_uploaded_file(stage_id, rule, progress_bar)
     else:
         st.caption("Waiting for PDF")
-        st.progress(0)
+        st.progress(0, text="Selecciona un PDF para comenzar")
 
     st.file_uploader(
         f"Upload {rule.label}",
