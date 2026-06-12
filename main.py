@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-import csv
 import io
-import json
+import re
+import unicodedata
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
 import streamlit as st
+
+from document_storage import prepare_document
 
 st.set_page_config(
     page_title="CAS",
@@ -18,18 +20,33 @@ st.set_page_config(
 APP_NAME = "CAS Document Portal"
 
 
+# =============================================================================
+# STYLES
+# Keep colors here so the visual theme can be changed without hunting through
+# individual components.
+# =============================================================================
 def inject_css() -> None:
     st.markdown(
         """
         <style>
-        html, body, [class*="css"] { font-family: "Inter","Segoe UI",Arial,sans-serif; }
-        .stApp {
-            background: linear-gradient(180deg, #fbf8f1 0%, #faf7f0 0%, #f7f3ea 0%);
-            color: #103b25;
+        :root {
+            --cas-green: #1b5936;
+            --cas-green-dark: #103b25;
+            --cas-green-soft: #e7f3e7;
+            --cas-green-hover: #d9ecd9;
+            --cas-green-border: #b9d8b9;
+            --cas-page: #f7f3ea;
+            --cas-card: rgba(255,255,255,.84);
+            --cas-soft-card: rgba(233,240,228,.80);
         }
+
+        /* App shell */
+        html, body, [class*="css"] { font-family: "Inter","Segoe UI",Arial,sans-serif; }
+        .stApp { background:var(--cas-page); color:var(--cas-green-dark); }
         #MainMenu, footer, header { visibility: hidden; }
         .block-container { padding-top: 1.1rem; padding-bottom: 1rem; max-width: 1600px; }
 
+        /* Sidebar */
         section[data-testid="stSidebar"] {
             background: linear-gradient(180deg, #fbf7ef 0%, #f0eadf 60%, #eaf3e8 100%);
             border-right: 1px solid rgba(16, 59, 37, 0.08);
@@ -51,11 +68,9 @@ def inject_css() -> None:
         div[data-testid="stSidebar"] .stButton > button {
             width: 100%;
             border-radius: 14px;
-            border: 1px solid rgba(46,125,74,0.10); /* subtle green border */
-            background: background: background: rgba(255,255,255,0.90);
-
-                                           /* lighter background */
-            color: #2B5F3A;                         /* softer green text */
+            border: 1px solid rgba(46,125,74,0.10);
+            background: rgba(255,255,255,0.90);
+            color: #2B5F3A;
             padding: .72rem .9rem;
             text-align: left;
             font-weight: 600;
@@ -63,26 +78,26 @@ def inject_css() -> None:
 
         div[data-testid="stSidebar"] .stButton > button:hover {
             border-color: rgba(46,125,74,0.18);
-            background: rgba(255,255,255,0.85);     /* slightly brighter on hover */
+            background: rgba(255,255,255,0.85);
             transform: translateY(-1px);
         }
-
         .nav-active button {
             background: linear-gradient(180deg, #e2ead7 0%, #d6e3cb 100%) !important;
             border: 1px solid rgba(21, 79, 49, 0.17) !important;
             font-weight: 700;
         }
+
+        /* Shared cards and text */
         .glass-card, .soft-card {
             border-radius: 18px; padding: 1.2rem 1.2rem; box-shadow: 0 12px 28px rgba(57,57,57,.07);
         }
-        .glass-card {
-            background: rgba(255,255,255,.72); border:1px solid rgba(18,72,44,.08);
-        }
-        .soft-card {
-            background: rgba(233,240,228,.80); border:1px solid rgba(21,79,49,.08);
-        }
+        .glass-card { background:rgba(255,255,255,.72); border:1px solid rgba(18,72,44,.08); }
+        .soft-card { background:var(--cas-soft-card); border:1px solid rgba(21,79,49,.08); }
         .stat-title { font-size:1.02rem; font-weight:700; color:#194833; margin-bottom:.55rem; }
         .stat-meta { color:rgba(25,72,51,.75); font-size:.95rem; }
+        .tiny { font-size:.82rem; color:rgba(24,63,43,.72); }
+
+        /* Dashboard header */
         .greeting h1 { margin:0; font-size:2rem; line-height:1.15; color:#14432b; }
         .greeting p { margin:.2rem 0 0 0; color:rgba(20,67,43,.76); font-size:1rem; }
         .top-icons { display:flex; align-items:center; gap:.8rem; color:#194833; justify-content:flex-end; }
@@ -90,8 +105,10 @@ def inject_css() -> None:
             width:44px; height:44px; border-radius:50%; background:rgba(208,220,199,.75);
             display:grid; place-items:center; font-weight:700;
         }
+
+        /* Stage header */
         .stage-card {
-            background:rgba(255,255,255,.84); border:1px solid rgba(17,61,39,.10);
+            background:var(--cas-card); border:1px solid rgba(17,61,39,.10);
             border-radius:16px; padding:1rem; margin-bottom:.9rem; box-shadow:0 10px 24px rgba(57,57,57,.06);
         }
         .stage-card.active {
@@ -109,55 +126,77 @@ def inject_css() -> None:
             display:inline-flex; align-items:center; gap:.35rem; border-radius:999px; padding:.32rem .7rem;
             font-size:.82rem; font-weight:700; border:1px solid transparent; white-space:nowrap;
         }
-        .status-completed {
-    background:#e0efde;
-    color:#1b5936;
-    border-color:#c0ddbd;
-}
-
-.status-missing {
-    background:#fff0e7;
-    color:#c85e22;
-    border-color:#ffd1b7;
-}
-
-.status-locked {
-    background:#fff5ee;
-    color:#d97706;
-    border-color:#fed7aa;
-}
-
-.status-ready {
-    background:#e7f3e7;
-    color:#1b5936;
-    border-color:#b9d8b9;
-}
+        .status-completed { background:#e0efde; color:var(--cas-green); border-color:#c0ddbd; }
+        .status-missing { background:#fff0e7; color:#c85e22; border-color:#ffd1b7; }
+        .status-locked { background:#fff5ee; color:#d97706; border-color:#fed7aa; }
+        .status-ready { background:var(--cas-green-soft); color:var(--cas-green); border-color:var(--cas-green-border); }
         .rule-box {
             background:rgba(245,248,243,.95); border:1px dashed rgba(21,79,49,.16);
             border-radius:14px; padding:.85rem .9rem; margin-top:.75rem;
         }
         .rule-box ul { margin:.35rem 0 0 1.15rem; padding:0; }
         .rule-box li { margin:.2rem 0; }
-        .timeline { position:relative; padding-left:1.15rem; }
-        .timeline::before {
-            content:""; position:absolute; left:.38rem; top:.2rem; bottom:.2rem; width:2px;
-            background:rgba(21,79,49,.14);
+
+        /* Upload cards */
+        .upload-card {
+            background:var(--cas-soft-card); border:1px solid rgba(21,79,49,.08);
+            border-radius:16px; padding:1rem; min-height:190px; margin-top:.1rem;
+            box-shadow:0 10px 24px rgba(57,57,57,.05);
         }
-        .timeline-item { position:relative; margin-bottom:.9rem; padding-left:.55rem; }
-        .timeline-item::before {
-            content:""; position:absolute; left:-.02rem; top:.24rem; width:.72rem; height:.72rem; border-radius:50%;
-            background:#dfe8d8; border:2px solid #b8cdb2;
+        .upload-card .stat-title { margin-bottom:.35rem; }
+        .upload-meta {
+            margin-top:.8rem; padding-top:.7rem; border-top:1px solid rgba(21,79,49,.11);
         }
-        .timeline-item.done::before { background:#1b5936; border-color:#1b5936; }
-        .timeline-name { font-weight:700; color:#163f2a; }
-        .timeline-sub { font-size:.88rem; color:rgba(22,63,42,.68); }
-        .tiny { font-size:.82rem; color:rgba(24,63,43,.72); }
-        .stFileUploader label { color:#18402a !important; font-weight:600 !important; }
+        .upload-meta ul { margin:.3rem 0 .45rem 1.05rem; padding:0; }
+        .upload-meta li { margin:.12rem 0; font-size:.82rem; color:rgba(24,63,43,.78); }
+
+        /* Native Streamlit upload controls */
         .stFileUploader section {
             background:rgba(255,255,255,.85) !important; border-radius:14px !important;
             border:1px dashed rgba(21,79,49,.2) !important;
+            padding:.7rem !important;
+            min-height:112px !important;
         }
+        .stFileUploader section button {
+            background:var(--cas-green-soft) !important;
+            color:var(--cas-green) !important;
+            border:1px solid var(--cas-green-border) !important;
+            box-shadow:none !important;
+        }
+        .stFileUploader section button:hover {
+            background:var(--cas-green-hover) !important;
+            border-color:#91be99 !important;
+        }
+
+        /* Stage arrow button and its Streamlit tooltip wrapper */
+        div[data-testid="stTooltipHoverTarget"],
+        div[class*="stTooltipHoverTarget"] {
+            background:transparent !important;
+        }
+        button[data-testid="stTooltipHoverTarget"],
+        button[class*="stTooltipHoverTarget"],
+        [data-testid="stTooltipHoverTarget"] > button,
+        [class*="stTooltipHoverTarget"] > button,
+        button[title="Open stage"],
+        [data-testid="stMain"] .stButton > button {
+            background:var(--cas-green-soft) !important;
+            color:var(--cas-green) !important;
+            border:1px solid var(--cas-green-border) !important;
+            box-shadow:none !important;
+        }
+        button[data-testid="stTooltipHoverTarget"]:hover,
+        button[class*="stTooltipHoverTarget"]:hover,
+        [data-testid="stTooltipHoverTarget"] > button:hover,
+        [class*="stTooltipHoverTarget"] > button:hover,
+        button[title="Open stage"]:hover,
+        [data-testid="stMain"] .stButton > button:hover {
+            background:var(--cas-green-hover) !important;
+            border-color:#91be99 !important;
+        }
+
+        /* Shared Streamlit widgets */
         .stButton > button { border-radius:12px; border:none; padding:.68rem 1rem; font-weight:700; }
+        .stProgress > div > div > div > div { background-color:var(--cas-green) !important; }
         @media (max-width: 900px) { .greeting h1 { font-size:1.6rem; } }
         </style>
         """,
@@ -169,75 +208,93 @@ def inject_css() -> None:
 class FileRule:
     label: str
     key: str
-    accepted_ext: List[str]
     required_fields: List[str]
     description: str
-    mode: str = "contains"  # contains | image_only | top_level_keys
 
 
+# =============================================================================
+# PROCESS CONFIGURATION
+# Each block below defines the three PDF requirements for one student step.
+# =============================================================================
 STAGES: List[Dict[str, Any]] = [
+    # STEP 1: Identity Verification
     {
         "id": 1,
         "title": "Identity Verification",
         "subtitle": "Validación de identidad y datos básicos.",
         "icon": "🪪",
         "files": [
-            FileRule("info_basica", "info_basica", ["json", "csv", "txt"], ["nombre", "apellido"], "Debe contener nombre y apellido."),
-            FileRule("documento_identidad", "documento_identidad", ["pdf", "png", "jpg", "jpeg", "docx"], ["numero_identificacion", "fecha_nacimiento"], "Debe contener número de identificación y fecha de nacimiento."),
-            FileRule("selfie_verificacion", "selfie_verificacion", ["jpg", "jpeg", "png"], [], "Imagen de selfie clara. No se valida contenido textual.", "image_only"),
+            FileRule("info_basica", "info_basica", ["nombre", "apellido"], "Debe contener nombre y apellido."),
+            FileRule("documento_identidad", "documento_identidad", ["numero_identificacion", "fecha_nacimiento"], "Debe contener número de identificación y fecha de nacimiento."),
+            FileRule("selfie_verificacion", "selfie_verificacion", [], "PDF de verificación. No requiere campos de texto específicos."),
         ],
     },
+    # STEP 2: Proof of Address
     {
         "id": 2,
         "title": "Proof of Address",
         "subtitle": "Comprobante de domicilio y validaciones de dirección.",
         "icon": "🏠",
         "files": [
-            FileRule("comprobante_direccion", "comprobante_direccion", ["pdf", "txt", "csv", "docx"], ["direccion", "pais"], "Debe incluir dirección completa y país."),
-            FileRule("estado_cuenta", "estado_cuenta", ["pdf", "csv", "txt"], ["nombre_titular", "direccion"], "Debe mostrar titular y dirección."),
-            FileRule("recibo_servicio", "recibo_servicio", ["pdf", "png", "jpg", "jpeg", "docx"], ["fecha_emision", "direccion"], "Debe incluir fecha de emisión y dirección."),
+            FileRule("comprobante_direccion", "comprobante_direccion", ["direccion", "pais"], "Debe incluir dirección completa y país."),
+            FileRule("estado_cuenta", "estado_cuenta", ["nombre_titular", "direccion"], "Debe mostrar titular y dirección."),
+            FileRule("recibo_servicio", "recibo_servicio", ["fecha_emision", "direccion"], "Debe incluir fecha de emisión y dirección."),
         ],
     },
+    # STEP 3: Contract / Agreement
     {
         "id": 3,
         "title": "Contract / Agreement",
         "subtitle": "Firma y condiciones de la relación contractual.",
         "icon": "✍️",
         "files": [
-            FileRule("contrato_firmado", "contrato_firmado", ["pdf", "docx"], ["firma", "nombre_completo"], "Debe contener firma y nombre completo."),
-            FileRule("anexo_terminos", "anexo_terminos", ["pdf", "txt", "docx"], ["terminos", "condiciones"], "Debe incluir términos y condiciones."),
-            FileRule("consentimiento", "consentimiento", ["pdf", "txt", "csv"], ["consentimiento_explicito"], "Debe declarar consentimiento explícito."),
+            FileRule("contrato_firmado", "contrato_firmado", ["firma", "nombre_completo"], "Debe contener firma y nombre completo."),
+            FileRule("anexo_terminos", "anexo_terminos", ["terminos", "condiciones"], "Debe incluir términos y condiciones."),
+            FileRule("consentimiento", "consentimiento", ["consentimiento_explicito"], "Debe declarar consentimiento explícito."),
         ],
     },
+    # STEP 4: Financial Information
     {
         "id": 4,
         "title": "Financial Information",
         "subtitle": "Información financiera y soportes bancarios.",
         "icon": "📈",
         "files": [
-            FileRule("reporte_financiero", "reporte_financiero", ["pdf", "csv", "xlsx", "txt"], ["ingresos", "egresos"], "Debe contener ingresos y egresos."),
-            FileRule("datos_bancarios", "datos_bancarios", ["pdf", "csv", "txt", "xlsx"], ["cuenta", "banco"], "Debe contener banco y número de cuenta."),
-            FileRule("declaracion_tributaria", "declaracion_tributaria", ["pdf", "docx", "txt"], ["impuestos", "periodo"], "Debe incluir impuestos y periodo."),
+            FileRule("reporte_financiero", "reporte_financiero", ["ingresos", "egresos"], "Debe contener ingresos y egresos."),
+            FileRule("datos_bancarios", "datos_bancarios", ["cuenta", "banco"], "Debe contener banco y número de cuenta."),
+            FileRule("declaracion_tributaria", "declaracion_tributaria", ["impuestos", "periodo"], "Debe incluir impuestos y periodo."),
         ],
     },
+    # STEP 5: Final Review
     {
         "id": 5,
         "title": "Final Review",
         "subtitle": "Revisión final del equipo.",
         "icon": "🏁",
         "files": [
-            FileRule("resumen_final", "resumen_final", ["pdf", "docx", "txt"], ["aprobacion", "estado_final"], "Debe contener aprobación y estado final."),
-            FileRule("checklist_final", "checklist_final", ["pdf", "csv", "txt"], ["item", "verificado"], "Checklist final con items verificados."),
-            FileRule("cierre_proceso", "cierre_proceso", ["pdf", "txt", "docx"], ["cierre", "fecha"], "Debe incluir cierre y fecha."),
+            FileRule("resumen_final", "resumen_final", ["aprobacion", "estado_final"], "Debe contener aprobación y estado final."),
+            FileRule("checklist_final", "checklist_final", ["item", "verificado"], "Checklist final con items verificados."),
+            FileRule("cierre_proceso", "cierre_proceso", ["cierre", "fecha"], "Debe incluir cierre y fecha."),
         ],
     },
 ]
 
 
+# =============================================================================
+# SESSION STATE
+# =============================================================================
 def init_state() -> None:
     st.session_state.setdefault("page", "Dashboard")
     st.session_state.setdefault("expanded_stage", 0)
     st.session_state.setdefault("validation", {})
+    st.session_state.setdefault("pending_uploads", {})
+
+
+# =============================================================================
+# PDF VALIDATION
+# =============================================================================
+class PdfExtractionError(RuntimeError):
+    pass
 
 
 def safe_ext(name: str) -> str:
@@ -245,56 +302,174 @@ def safe_ext(name: str) -> str:
 
 
 def _bytes_to_text(data: bytes) -> str:
-    """
-    Extrae texto únicamente desde PDFs.
-    """
-
     try:
         from pypdf import PdfReader
+        from pypdf.errors import PdfReadError
+    except ModuleNotFoundError:
+        try:
+            from PyPDF2 import PdfReader
+            from PyPDF2.errors import PdfReadError
+        except ModuleNotFoundError as exc:
+            raise PdfExtractionError(
+                "Falta la dependencia para leer PDFs. Instala requirements.txt."
+            ) from exc
 
-        reader = PdfReader(io.BytesIO(data))
-
-        pages = []
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                pages.append(text)
-
-        return "\n".join(pages).lower()
-
-    except Exception as exc:
-        raise RuntimeError(
-            "No se pudo leer el PDF. Verifica que no esté protegido o corrupto."
-        ) from exc
-    
-def validate_uploaded_file(uploaded_file, rule: FileRule) -> Tuple[bool, str]:
-    ext = safe_ext(uploaded_file.name)
-    if ext not in rule.accepted_ext:
-        return False, f"Extensión .{ext or 'sin extensión'} no permitida. Permitidas: {', '.join(rule.accepted_ext)}"
-    if rule.mode == "image_only":
-        return True, "Archivo de imagen recibido. Validación textual no aplica."
-    raw = uploaded_file.getvalue()
     try:
-        if ext == "json":
-            content = json.loads(raw.decode("utf-8", errors="ignore"))
-            flat_text = json.dumps(content, ensure_ascii=False).lower()
-            missing = [f for f in rule.required_fields if f.lower() not in flat_text]
-            return (len(missing) == 0, "JSON válido y con campos requeridos." if not missing else f"Faltan campos o valores relacionados: {', '.join(missing)}")
-        if ext == "csv":
-            text = raw.decode("utf-8", errors="ignore")
-            reader = csv.DictReader(io.StringIO(text))
-            headers = [h.strip().lower() for h in (reader.fieldnames or [])]
-            missing = [f for f in rule.required_fields if f.lower() not in headers]
-            return (len(missing) == 0, "CSV válido y con columnas requeridas." if not missing else f"Faltan columnas: {', '.join(missing)}")
-        text = _bytes_to_text(raw).lower()
-        missing = [f for f in rule.required_fields if f.lower() not in text]
-        return (len(missing) == 0, f"Archivo válido. Se encontraron los campos requeridos: {', '.join(rule.required_fields)}" if not missing else f"Faltan campos detectables en el contenido: {', '.join(missing)}")
-    except json.JSONDecodeError:
-        return False, "El archivo JSON no tiene un formato válido."
+        reader = PdfReader(io.BytesIO(data), strict=False)
+    except PdfReadError as exc:
+        raise PdfExtractionError(
+            "El archivo no tiene una estructura PDF válida."
+        ) from exc
     except Exception as exc:
-        return False, str("")
+        raise PdfExtractionError(
+            f"No se pudo abrir el PDF ({type(exc).__name__})."
+        ) from exc
+
+    if reader.is_encrypted:
+        try:
+            unlocked = reader.decrypt("")
+        except Exception:
+            unlocked = 0
+        if not unlocked:
+            raise PdfExtractionError("El PDF está protegido con contraseña.")
+
+    extracted_parts: List[str] = []
+    page_errors: List[str] = []
+    for page_number, page in enumerate(reader.pages, start=1):
+        try:
+            text = page.extract_text() or ""
+            if text:
+                extracted_parts.append(text)
+        except Exception as exc:
+            page_errors.append(f"página {page_number}: {type(exc).__name__}")
+
+    # Form fields are optional. Failure here must not invalidate readable text.
+    try:
+        form_fields = reader.get_fields() or {}
+        for field_name, field_data in form_fields.items():
+            value = field_data.get("/V")
+            if value not in (None, ""):
+                extracted_parts.append(f"{field_name}: {value}")
+    except Exception:
+        pass
+
+    if not extracted_parts and page_errors:
+        raise PdfExtractionError(
+            "No se pudo extraer texto del PDF (" + "; ".join(page_errors) + ")."
+        )
+
+    return "\n".join(extracted_parts)
 
 
+def _normalize_text(value: str) -> str:
+    value = unicodedata.normalize("NFKD", value.lower())
+    value = "".join(char for char in value if not unicodedata.combining(char))
+    value = value.replace("_", " ")
+    value = re.sub(r"[ \t]+", " ", value)
+    return value
+
+
+def _field_label_pattern(field: str) -> str:
+    words = re.findall(r"[a-z0-9]+", _normalize_text(field))
+    separator = r"[\s_-]+(?:(?:de|del|la|el)[\s_-]+)?"
+    patterns = []
+    for word in words:
+        plural_suffix = "" if word.endswith("s") else "s?"
+        patterns.append(re.escape(word) + plural_suffix)
+    return separator.join(patterns)
+
+
+def _has_filled_field(text: str, field: str, all_fields: List[str]) -> bool:
+    normalized = _normalize_text(text)
+    field_pattern = _field_label_pattern(field)
+    other_labels = [
+        _field_label_pattern(other)
+        for other in all_fields
+        if _normalize_text(other) != _normalize_text(field)
+    ]
+    stop_pattern = "|".join(other_labels)
+    lookahead = rf"(?=\n|{stop_pattern}\s*[:\-]|\Z)" if stop_pattern else r"(?=\n|\Z)"
+    pattern = re.compile(
+        rf"\b{field_pattern}\b\s*(?:[:=\-]\s*)?(.*?){lookahead}",
+        re.IGNORECASE,
+    )
+
+    for match in pattern.finditer(normalized):
+        candidate = match.group(1).strip()
+        candidate = re.sub(r"^[.\-–—:/\\\s]+|[.\-–—:/\\\s]+$", "", candidate)
+        if re.search(r"[a-z0-9]", candidate):
+            return True
+    return False
+
+
+def validate_pdf(file_name: str, data: bytes, rule: FileRule) -> Tuple[bool, str]:
+    ext = safe_ext(file_name)
+    if ext != "pdf":
+        return False, f"Extensión .{ext or 'sin extensión'} no permitida. Por ahora solo se aceptan archivos PDF."
+
+    try:
+        text = _bytes_to_text(data)
+        if not text.strip():
+            return False, "No se encontró texto seleccionable en el PDF. Los PDFs escaneados requieren OCR."
+        if not rule.required_fields:
+            return True, "PDF válido y con texto detectable."
+
+        missing = [
+            field
+            for field in rule.required_fields
+            if not _has_filled_field(text, field, rule.required_fields)
+        ]
+        if missing:
+            return False, f"Campos vacíos o no detectados: {', '.join(missing)}"
+        return True, f"PDF válido. Campos completos: {', '.join(rule.required_fields)}"
+    except PdfExtractionError as exc:
+        return False, str(exc)
+
+
+def uploader_key(stage_id: int, rule_key: str) -> str:
+    return f"u_{stage_id}_{rule_key}"
+
+
+def validation_key(stage_id: int, rule_key: str) -> Tuple[int, str]:
+    return stage_id, rule_key
+
+
+def process_uploaded_file(stage_id: int, rule: FileRule) -> None:
+    """Prepare and validate the selected PDF, then persist it across reruns."""
+    widget_key = uploader_key(stage_id, rule.key)
+    result_key = validation_key(stage_id, rule.key)
+    uploaded_file = st.session_state.get(widget_key)
+
+    if uploaded_file is None:
+        st.session_state.validation.pop(result_key, None)
+        st.session_state.pending_uploads.pop(result_key, None)
+        return
+
+    data = uploaded_file.getvalue()
+    document = prepare_document(
+        stage_id=stage_id,
+        document_key=rule.key,
+        file_name=uploaded_file.name,
+        content_type=getattr(uploaded_file, "type", None) or "application/pdf",
+        data=data,
+    )
+    st.session_state.pending_uploads[result_key] = document
+
+    ok, message = validate_pdf(document.file_name, document.data, rule)
+    st.session_state.validation[result_key] = {
+        "ok": ok,
+        "message": message,
+        "file_name": document.file_name,
+        "file_size": document.size,
+        "sha256": document.sha256,
+        "progress": 100,
+        "storage_status": "ready" if ok else "blocked",
+    }
+
+
+# =============================================================================
+# PROCESS STATUS AND UI
+# =============================================================================
 def stage_status(stage: Dict[str, Any]) -> Tuple[str, str]:
     status_list = [
         st.session_state.validation.get((stage["id"], rule.key), {}).get("ok")
@@ -419,25 +594,60 @@ def render_status_panel() -> None:
     )
 
 
-def render_process_summary() -> None:
-    st.markdown('<div class="glass-card"><div class="stat-title">Process Summary</div><div class="timeline">', unsafe_allow_html=True)
-    for stage in STAGES:
-        status, _ = stage_status(stage)
-        done_cls = "done" if status == "completed" else ""
-        subtitle = "Completed on May 15, 2024" if stage["id"] == 1 else ("Completed" if status == "completed" else ("Missing document" if status == "missing" else "Locked"))
-        st.markdown(
-            f"""
-            <div class="timeline-item {done_cls}">
-                <div class="timeline-name">{stage['title']}</div>
-                <div class="timeline-sub">{subtitle}</div>
+def format_file_size(size: int) -> str:
+    if size < 1024:
+        return f"{size} B"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.1f} KB"
+    return f"{size / (1024 * 1024):.1f} MB"
+
+
+def render_document_uploader(stage_id: int, rule: FileRule) -> None:
+    """Render one document requirement, upload progress, and validation result."""
+    result_key = validation_key(stage_id, rule.key)
+    result = st.session_state.validation.get(result_key)
+    fields = rule.required_fields or ["Sin campos de texto requeridos"]
+
+    st.markdown(
+        f"""
+        <div class="upload-card">
+            <div class="stat-title">{rule.label}</div>
+            <div class="tiny">{rule.description}</div>
+            <div class="upload-meta">
+                <div class="tiny"><b>Required information:</b></div>
+                <ul>{''.join([f'<li>{field.replace("_", " ")}</li>' for field in fields])}</ul>
+                <div class="tiny"><b>Available format:</b> PDF</div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    st.markdown("</div></div>", unsafe_allow_html=True)
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if result:
+        file_size = format_file_size(result.get("file_size", 0))
+        st.caption(f"Loaded: {result['file_name']} ({file_size})")
+        st.progress(result.get("progress", 100))
+    else:
+        st.caption("Waiting for PDF")
+        st.progress(0)
+
+    st.file_uploader(
+        f"Upload {rule.label}",
+        type=["pdf"],
+        key=uploader_key(stage_id, rule.key),
+        label_visibility="collapsed",
+        on_change=process_uploaded_file,
+        args=(stage_id, rule),
+    )
+
+    if result:
+        if result["ok"]:
+            st.success(result["message"])
+        else:
+            st.error(result["message"])
 
 
-def render_stage_card(stage: Dict[str, Any]) -> None:
+def render_stage_header(stage: Dict[str, Any]) -> None:
     stage_id = stage["id"]
     status, _ = stage_status(stage)
     active = st.session_state.expanded_stage == stage_id
@@ -485,54 +695,33 @@ def render_stage_card(stage: Dict[str, Any]) -> None:
             help="Open stage" if unlocked else "Complete the previous step first",
         ):
             st.session_state.expanded_stage = 0 if active else stage_id
+
+
+def render_stage_uploads(stage: Dict[str, Any]) -> None:
+    stage_id = stage["id"]
+    st.markdown(
+        """
+        <div class="rule-box">
+            <div class="stat-title" style="margin-bottom:.3rem;">Sube 3 archivos de esta etapa</div>
+            <div class="tiny">Cada archivo se revisa con reglas diferentes según la etapa y el tipo de documento.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    cols = st.columns(3, gap="medium")
+    for column, rule in zip(cols, stage["files"]):
+        with column:
+            render_document_uploader(stage_id, rule)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+
+def render_stage_card(stage: Dict[str, Any]) -> None:
+    render_stage_header(stage)
+
+    active = st.session_state.expanded_stage == stage["id"]
     if active:
-        st.markdown(
-            """
-            <div class="rule-box">
-                <div class="stat-title" style="margin-bottom:.3rem;">Sube 3 archivos de esta etapa</div>
-                <div class="tiny">Cada archivo se revisa con reglas diferentes según la etapa y el tipo de documento.</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        cols = st.columns(3, gap="medium")
-        for idx, rule in enumerate(stage["files"]):
-            with cols[idx]:
-                st.markdown(
-                    f"""
-                    <div class="soft-card" style="min-height: 350px;">
-                        <div class="stat-title">{rule.label}</div>
-                        <div class="tiny">{rule.description}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-                uploaded = st.file_uploader(
-                    f"A",
-                    type=["pdf"],
-                    key=f"u_{stage_id}_{rule.key}",
-                    label_visibility="visible",
-                )
-                if uploaded is not None:
-                    ok, msg = validate_uploaded_file(uploaded, rule)
-                    st.session_state.validation[(stage_id, rule.key)] = {"ok": ok, "message": msg, "file_name": uploaded.name}
-                    st.success(msg) if ok else st.error(msg)
-                result = st.session_state.validation.get((stage_id, rule.key))
-                if result:
-                    st.caption(("✅ " if result["ok"] else "❌ ") + result["file_name"])
-                else:
-                    st.caption("Upload File to start checking.")
-                st.markdown(
-                    f"""
-                    <div class="rule-box">
-                        <div class="tiny"><b>Required information:</b></div>
-                        <ul>{''.join([f'<li>{field}</li>' for field in (rule.required_fields or ['Sin campos de texto'])])}</ul>
-                        <div class="tiny" style="margin-top:.35rem;"><b>Formatos:</b> {', '.join(rule.accepted_ext)}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-        st.markdown("<br>", unsafe_allow_html=True)
+        render_stage_uploads(stage)
+
 
 def is_stage_unlocked(stage_id: int) -> bool:
     if stage_id == 1:
@@ -542,6 +731,7 @@ def is_stage_unlocked(stage_id: int) -> bool:
     status, _ = stage_status(previous_stage)
 
     return status == "completed"
+
 
 def dashboard_page() -> None:
     render_topbar()
