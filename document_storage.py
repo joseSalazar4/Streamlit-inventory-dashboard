@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from typing import Protocol
 
 
 @dataclass(frozen=True)
@@ -19,20 +18,6 @@ class DocumentUpload:
     @property
     def size(self) -> int:
         return len(self.data)
-
-
-@dataclass(frozen=True)
-class StoredDocument:
-    provider: str
-    remote_id: str
-    remote_path: str
-
-
-class DocumentStorage(Protocol):
-    """Provider contract for a future OneDrive implementation."""
-
-    def upload(self, document: DocumentUpload) -> StoredDocument:
-        ...
 
 
 def prepare_document(
