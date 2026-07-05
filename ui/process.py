@@ -226,9 +226,11 @@ def render_stage_header(stage: Dict[str, Any]) -> None:
         )
         can_toggle = status == "completed" or unlocked
         action_key = f"stage_action_{status_class.replace('status-', '')}_{stage_id}"
+        action_icon = ":material/keyboard_arrow_up:" if active else ":material/keyboard_arrow_down:"
         if st.button(
             chip_text,
             key=action_key,
+            icon=action_icon,
             disabled=not can_toggle,
             help=("Close stage" if active else "Open stage") if can_toggle else "Complete the previous step first",
         ):

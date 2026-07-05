@@ -248,6 +248,10 @@ def inject_css() -> None:
             line-height:1 !important;
             white-space:nowrap !important;
         }
+        [class*="st-key-stage_action_"] .stButton > button [data-testid="stIconMaterial"] {
+            margin-right:.1rem !important;
+            font-size:1rem !important;
+        }
         [class*="st-key-stage_action_ready_"] .stButton > button,
         [class*="st-key-stage_action_completed_"] .stButton > button {
             background:var(--cas-green-soft) !important;
@@ -411,6 +415,10 @@ def inject_css() -> None:
             [data-testid="stMain"] .stButton > button { width:100% !important; }
             [class*="st-key-stage_header_"] .stage-card {
                 padding-right:9rem;
+            }
+            [class*="st-key-stage_action_"] {
+                top:50%;
+                transform:translateY(-50%);
             }
             [class*="st-key-stage_action_"] .stButton > button {
                 width:auto !important;
