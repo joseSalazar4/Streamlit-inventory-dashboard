@@ -38,7 +38,7 @@ def render_sidebar() -> None:
         st.markdown(
             """
             <div class="brand-box">
-                <div class="brand-logo">CAS</div>
+                <div class="brand-logo-image" aria-label="CAS logo"></div>
                 <div>
                     <div class="brand-title">CAS</div>
                     <div class="brand-subtitle">DOCUMENT PORTAL</div>
@@ -71,22 +71,23 @@ def render_sidebar() -> None:
 
 
 def render_sidebar_help() -> None:
-    st.markdown(
-        """
-        <div class="sidebar-help-copy">
-            <div class="stat-title">Need Help?</div>
-            <div class="stat-meta">Contact support if you need help with a document.</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.link_button(
-        "Contact support",
-        "https://www.facebook.com/cascostarica1",
-        icon=":material/support_agent:",
-        type="tertiary",
-        use_container_width=True,
-    )
+    with st.container(key="sidebar_help_card"):
+        st.markdown(
+            """
+            <div class="sidebar-help-copy">
+                <div class="stat-title">Need Help?</div>
+                <div class="stat-meta">Contact support if you need help with a document.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.link_button(
+            "Contact support",
+            "https://www.facebook.com/cascostarica1",
+            icon=":material/support_agent:",
+            type="tertiary",
+            use_container_width=True,
+        )
 
 
 def render_topbar() -> None:
@@ -199,7 +200,7 @@ def render_stage_header(stage: Dict[str, Any]) -> None:
         chip_text = "Completed"
         status_class = "status-completed"
     elif unlocked:
-        chip_text = "Ready to upload"
+        chip_text = "Upload Files"
         status_class = "status-ready"
     else:
         chip_text = "Locked"

@@ -89,26 +89,70 @@ def _field_label_pattern(field: str) -> str:
     return separator.join(patterns)
 
 
-def _has_filled_field(text: str, field: str, all_fields: List[str]) -> bool:
-    normalized = _normalize_text(text)
-    field_pattern = _field_label_pattern(field)
-    other_labels = [
-        _field_label_pattern(other)
-        for other in all_fields
-        if _normalize_text(other) != _normalize_text(field)
+def _normalized_lines(text: str) -> List[str]:
+    return [
+        _normalize_text(line).strip()
+        for line in text.splitlines()
+        if _normalize_text(line).strip()
     ]
-    stop_pattern = "|".join(other_labels)
-    lookahead = rf"(?=\n|{stop_pattern}\s*[:\-]|\Z)" if stop_pattern else r"(?=\n|\Z)"
-    pattern = re.compile(
-        rf"\b{field_pattern}\b\s*(?:[:=\-]\s*)?(.*?){lookahead}",
-        re.IGNORECASE,
+
+
+def _is_field_label(value: str, fields: List[str]) -> bool:
+    return any(
+        re.fullmatch(rf"{_field_label_pattern(field)}\s*:?", value, re.IGNORECASE)
+        for field in fields
     )
 
-    for match in pattern.finditer(normalized):
-        candidate = match.group(1).strip()
-        candidate = re.sub(r"^[.\-:/\\\s]+|[.\-:/\\\s]+$", "", candidate)
-        if re.search(r"[a-z0-9]", candidate):
+
+def _has_real_value(candidate: str, all_fields: List[str]) -> bool:
+    candidate = re.sub(r"^[.\-:=/\\\s]+|[.\-:=/\\\s]+$", "", candidate).strip()
+    if not re.search(r"[a-z0-9]", candidate):
+        return False
+    if _is_field_label(candidate, all_fields):
+        return False
+
+    filler_words = {
+        "field",
+        "fields",
+        "format",
+        "include",
+        "includes",
+        "must",
+        "pdf",
+        "readable",
+        "require",
+        "required",
+        "requirement",
+        "requirements",
+        "should",
+    }
+    first_word = re.sub(r"[^a-z0-9]", "", candidate.split(" ", 1)[0])
+    return first_word not in filler_words
+
+
+def _has_filled_field(text: str, field: str, all_fields: List[str]) -> bool:
+    lines = _normalized_lines(text)
+    field_pattern = _field_label_pattern(field)
+
+    same_line = re.compile(rf"^{field_pattern}\s*[:=\-]\s*(.+)$", re.IGNORECASE)
+    loose_same_line = re.compile(rf"^{field_pattern}\s+(.+)$", re.IGNORECASE)
+    label_only = re.compile(rf"^{field_pattern}\s*:?\s*$", re.IGNORECASE)
+
+    for index, line in enumerate(lines):
+        match = same_line.match(line)
+        if match and _has_real_value(match.group(1), all_fields):
             return True
+
+        match = loose_same_line.match(line)
+        if match and _has_real_value(match.group(1), all_fields):
+            return True
+
+        if label_only.match(line):
+            for next_line in lines[index + 1 : index + 3]:
+                if _is_field_label(next_line, all_fields):
+                    break
+                if _has_real_value(next_line, all_fields):
+                    return True
     return False
 
 

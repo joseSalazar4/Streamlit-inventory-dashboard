@@ -57,9 +57,12 @@ def inject_css() -> None:
         }
         section[data-testid="stSidebar"] > div { padding-top:1rem; }
         .brand-box { display:flex; align-items:center; gap:12px; padding:12px 10px 22px; }
-        .brand-logo {
-            width:44px; height:44px; border-radius:12px; background:var(--cas-green);
-            color:white; display:grid; place-items:center; font-size:.78rem; font-weight:800;
+        .brand-logo-image {
+            width:58px; height:44px; flex-shrink:0;
+            background-image:url("__CAS_NAV_LOGO__");
+            background-position:center;
+            background-repeat:no-repeat;
+            background-size:contain;
         }
         .brand-title { font-size:1.35rem; font-weight:800; letter-spacing:.08em; color:#1a4d33; }
         .brand-subtitle { margin-top:3px; font-size:.78rem; letter-spacing:.14em; color:rgba(26,77,51,.75); }
@@ -76,9 +79,16 @@ def inject_css() -> None:
             text-decoration:underline;
             text-underline-offset:4px;
         }
-        .sidebar-help-copy {
+        [class*="st-key-sidebar_help_card"] {
             margin-top:clamp(3rem, 28vh, 14rem);
-            padding:.4rem .1rem .2rem;
+            padding:.9rem;
+            border:1px solid rgba(21,79,49,.14);
+            border-radius:14px;
+            background:rgba(255,255,255,.58);
+            box-shadow:0 10px 24px rgba(57,57,57,.05);
+        }
+        .sidebar-help-copy {
+            padding:0 0 .65rem;
         }
         .sidebar-help-copy .stat-title { color:#111111; margin-bottom:.35rem; }
         .sidebar-help-copy .stat-meta {
@@ -97,6 +107,22 @@ def inject_css() -> None:
             text-decoration:underline;
             text-underline-offset:4px;
         }
+        div[data-testid="stSidebar"] [class*="st-key-sidebar_help_card"] [data-testid="stLinkButton"] a,
+        div[data-testid="stSidebar"] [class*="st-key-sidebar_help_card"] .stLinkButton a {
+            justify-content:center;
+            padding:.65rem .8rem;
+            border-radius:12px;
+            color:white !important;
+            background:var(--cas-green) !important;
+            border:1px solid var(--cas-green) !important;
+            text-decoration:none;
+            box-shadow:0 8px 18px rgba(16,59,37,.14);
+        }
+        div[data-testid="stSidebar"] [class*="st-key-sidebar_help_card"] [data-testid="stLinkButton"] a:hover,
+        div[data-testid="stSidebar"] [class*="st-key-sidebar_help_card"] .stLinkButton a:hover {
+            background:var(--cas-green-dark) !important;
+            border-color:var(--cas-green-dark) !important;
+        }
 
         .glass-card, .soft-card {
             border-radius:14px; padding:1.1rem; box-shadow:0 10px 24px rgba(57,57,57,.06);
@@ -109,12 +135,21 @@ def inject_css() -> None:
         .tiny { font-size:.84rem; }
 
         .st-key-dashboard_header {
-            max-width:980px;
-            margin-bottom:.75rem;
+            max-width:1120px;
+            margin-bottom:1.1rem;
         }
         .greeting h1 { margin:0; font-size:2rem; line-height:1.15; color:#14432b; }
-        .greeting p { margin:.25rem 0 0; color:rgba(20,67,43,.76); font-size:1rem; }
-        .progress-card { padding:.95rem 1rem; max-width:520px; }
+        .greeting p { margin:.25rem 0 1rem; color:rgba(20,67,43,.76); font-size:1rem; }
+        .dashboard-brand-mark {
+            width:min(100%, 320px);
+            height:112px;
+            margin-left:auto;
+            background-image:url("__CAS_NAV_LOGO__");
+            background-position:center right;
+            background-repeat:no-repeat;
+            background-size:contain;
+        }
+        .progress-card { padding:.95rem 1rem; max-width:760px; }
         .progress-head, .progress-meta {
             display:flex; align-items:center; justify-content:space-between; gap:1rem;
         }
@@ -125,7 +160,7 @@ def inject_css() -> None:
             color:#14432b;
         }
         .progress-track {
-            width:min(78%, 360px);
+            width:100%;
             height:10px; margin:.8rem 0 .5rem; background:#e7eadf;
             border-radius:999px; overflow:hidden;
         }
@@ -228,23 +263,27 @@ def inject_css() -> None:
         .status-locked { background:#fff5ee; color:#d97706; border-color:#fed7aa; }
         .status-ready { background:var(--cas-green-soft); color:var(--cas-green); border-color:var(--cas-green-border); }
         [class*="st-key-stage_header_"] { position:relative; }
-        [class*="st-key-stage_header_"] .stage-card { padding-right:10.5rem; }
+        [class*="st-key-stage_header_"] .stage-card { padding-right:11.25rem; }
         [class*="st-key-stage_action_"] {
             position:absolute;
             right:1rem;
             top:1rem;
             z-index:3;
-            width:auto !important;
+            width:9rem !important;
+        }
+        [class*="st-key-stage_action_"] .stButton {
+            width:100% !important;
         }
         [class*="st-key-stage_action_"] .stButton > button {
-            width:auto !important;
-            min-width:0 !important;
+            width:100% !important;
+            min-width:100% !important;
             min-height:34px !important;
             padding:.32rem .7rem !important;
             border-radius:999px !important;
             box-shadow:none !important;
             font-size:.82rem !important;
             font-weight:800 !important;
+            justify-content:center !important;
             line-height:1 !important;
             white-space:nowrap !important;
         }
@@ -358,6 +397,7 @@ def inject_css() -> None:
         @media (max-width: 900px) {
             .block-container { padding:3.25rem .8rem 1.25rem; }
             .greeting h1 { font-size:1.55rem; }
+            .dashboard-brand-mark { display:none; }
             .progress-head, .progress-meta, .stage-head {
                 align-items:flex-start; flex-direction:column; gap:.65rem;
             }
@@ -375,14 +415,14 @@ def inject_css() -> None:
                 top:0;
                 left:0;
                 right:0;
-                height:48px;
+                height:58px;
                 display:flex;
                 align-items:center;
                 justify-content:center;
                 background-image:url("__CAS_NAV_LOGO__");
                 background-position:center;
                 background-repeat:no-repeat;
-                background-size:95px auto;
+                background-size:133px auto;
                 background-color:rgba(247,243,234,.96);
                 border-bottom:1px solid rgba(16,59,37,.08);
                 color:#111111;
@@ -391,7 +431,7 @@ def inject_css() -> None:
                 z-index:999;
                 pointer-events:none;
             }
-            .block-container { padding-top:4.35rem !important; }
+            .block-container { padding-top:5rem !important; }
             [data-testid="stSidebarCollapsedControl"] {
                 z-index:1000 !important;
             }
@@ -414,14 +454,22 @@ def inject_css() -> None:
             div[data-testid="column"] { width:100% !important; flex:1 1 100% !important; }
             [data-testid="stMain"] .stButton > button { width:100% !important; }
             [class*="st-key-stage_header_"] .stage-card {
-                padding-right:9rem;
+                padding-right:10.5rem;
             }
             [class*="st-key-stage_action_"] {
                 top:50%;
                 transform:translateY(-50%);
+                width:8.5rem !important;
             }
             [class*="st-key-stage_action_"] .stButton > button {
-                width:auto !important;
+                width:100% !important;
+                min-width:100% !important;
+                min-height:36px !important;
+                padding:.28rem .56rem !important;
+                font-size:.78rem !important;
+            }
+            [class*="st-key-stage_action_"] .stButton > button [data-testid="stIconMaterial"] {
+                font-size:.9rem !important;
             }
             [class*="st-key-upload_item_"] {
                 min-height:0;
