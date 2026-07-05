@@ -14,4 +14,7 @@ def init_state() -> None:
     st.session_state.setdefault("auth_step", "signup")
     st.session_state.setdefault("pending_signup", None)
     st.session_state.setdefault("email_challenge", None)
+    st.session_state.setdefault("pending_password_reset", None)
+    st.session_state.setdefault("password_reset_challenge", None)
+    st.session_state.setdefault("auth_notice", "")
 

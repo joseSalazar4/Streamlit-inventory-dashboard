@@ -5,70 +5,76 @@ from typing import Any, Dict, List
 from models.file_rule import FileRule
 
 
+def document(key: str, label: str, required_fields: List[str], description: str) -> FileRule:
+    return FileRule(label=label, key=key, required_fields=required_fields, description=description)
+
+
+# Replace these demo requirements with the real field checks when the final documents are ready.
+IDENTITY_FILES = [
+    document("info_basica", "Basic information", ["First name", "Last name"], "Must include the applicant name."),
+    document("documento_identidad", "ID document", ["ID number", "Date of birth"], "Must include ID number and date of birth."),
+    document("selfie_verificacion", "Selfie verification", [], "Readable PDF for visual verification."),
+]
+
+ADDRESS_FILES = [
+    document("comprobante_direccion", "Proof of address", ["Full address", "Country"], "Must include current address and country."),
+    document("estado_cuenta", "Account statement", ["Account holder", "Address"], "Must show account holder and address."),
+    document("recibo_servicio", "Utility bill", ["Issue date", "Address"], "Must include issue date and address."),
+]
+
+CONTRACT_FILES = [
+    document("contrato_firmado", "Signed contract", ["Signature", "Full legal name"], "Must include signature and full legal name."),
+    document("anexo_terminos", "Terms annex", ["Terms", "Conditions"], "Must include terms and conditions."),
+    document("consentimiento", "Consent form", ["Explicit consent"], "Must declare explicit consent."),
+]
+
+FINANCIAL_FILES = [
+    document("reporte_financiero", "Financial report", ["Income", "Expenses"], "Must include income and expenses."),
+    document("datos_bancarios", "Bank details", ["Account number", "Bank name"], "Must include bank and account number."),
+    document("declaracion_tributaria", "Tax declaration", ["Tax period", "Tax amount"], "Must include tax period and amount."),
+]
+
+FINAL_REVIEW_FILES = [
+    document("resumen_final", "Final summary", ["Approval", "Final status"], "Must include approval and final status."),
+    document("checklist_final", "Final checklist", ["Reviewed item", "Verified status"], "Must include reviewed items and status."),
+    document("cierre_proceso", "Process closeout", ["Closeout note", "Date"], "Must include closeout note and date."),
+]
+
+
 STAGES: List[Dict[str, Any]] = [
     {
         "id": 1,
         "title": "Identity Verification",
         "subtitle": "Identity and basic information check.",
-        "icon": "ID",
-        "files": [
-            FileRule("info_basica", "info_basica", ["nombre", "apellido"], "Debe contener nombre y apellido."),
-            FileRule(
-                "documento_identidad",
-                "documento_identidad",
-                ["numero_identificacion", "fecha_nacimiento"],
-                "Debe contener numero de identificacion y fecha de nacimiento.",
-            ),
-            FileRule(
-                "selfie_verificacion",
-                "selfie_verificacion",
-                [],
-                "PDF de verificacion. No requiere campos de texto especificos.",
-            ),
-        ],
+        "icon": "badge",
+        "files": IDENTITY_FILES,
     },
     {
         "id": 2,
         "title": "Proof of Address",
         "subtitle": "Address and residency verification.",
-        "icon": "AD",
-        "files": [
-            FileRule("comprobante_direccion", "comprobante_direccion", ["direccion", "pais"], "Debe incluir direccion completa y pais."),
-            FileRule("estado_cuenta", "estado_cuenta", ["nombre_titular", "direccion"], "Debe mostrar titular y direccion."),
-            FileRule("recibo_servicio", "recibo_servicio", ["fecha_emision", "direccion"], "Debe incluir fecha de emision y direccion."),
-        ],
+        "icon": "location_on",
+        "files": ADDRESS_FILES,
     },
     {
         "id": 3,
         "title": "Contract / Agreement",
         "subtitle": "Signed agreement and consent checks.",
-        "icon": "AG",
-        "files": [
-            FileRule("contrato_firmado", "contrato_firmado", ["firma", "nombre_completo"], "Debe contener firma y nombre completo."),
-            FileRule("anexo_terminos", "anexo_terminos", ["terminos", "condiciones"], "Debe incluir terminos y condiciones."),
-            FileRule("consentimiento", "consentimiento", ["consentimiento_explicito"], "Debe declarar consentimiento explicito."),
-        ],
+        "icon": "description",
+        "files": CONTRACT_FILES,
     },
     {
         "id": 4,
         "title": "Financial Information",
         "subtitle": "Financial and bank-support documents.",
-        "icon": "FI",
-        "files": [
-            FileRule("reporte_financiero", "reporte_financiero", ["ingresos", "egresos"], "Debe contener ingresos y egresos."),
-            FileRule("datos_bancarios", "datos_bancarios", ["cuenta", "banco"], "Debe contener banco y numero de cuenta."),
-            FileRule("declaracion_tributaria", "declaracion_tributaria", ["impuestos", "periodo"], "Debe incluir impuestos y periodo."),
-        ],
+        "icon": "account_balance",
+        "files": FINANCIAL_FILES,
     },
     {
         "id": 5,
         "title": "Final Review",
         "subtitle": "Final review by the team.",
-        "icon": "FR",
-        "files": [
-            FileRule("resumen_final", "resumen_final", ["aprobacion", "estado_final"], "Debe contener aprobacion y estado final."),
-            FileRule("checklist_final", "checklist_final", ["item", "verificado"], "Checklist final con items verificados."),
-            FileRule("cierre_proceso", "cierre_proceso", ["cierre", "fecha"], "Debe incluir cierre y fecha."),
-        ],
+        "icon": "verified",
+        "files": FINAL_REVIEW_FILES,
     },
 ]

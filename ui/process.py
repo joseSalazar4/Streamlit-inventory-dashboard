@@ -4,6 +4,7 @@ from typing import Any, Dict, Tuple
 
 import streamlit as st
 
+from auth.session_cookie import clear_auth_session
 from config.process import STAGES
 from models.file_rule import FileRule
 from validators.pdf import finish_uploaded_file, process_uploaded_file, uploader_key, validation_key
@@ -47,14 +48,45 @@ def render_sidebar() -> None:
             unsafe_allow_html=True,
         )
         st.markdown('<div class="nav-active">', unsafe_allow_html=True)
-        if st.button("Dashboard", key="nav_dashboard"):
+        if st.button(
+            "Dashboard",
+            key="nav_dashboard",
+            icon=":material/dashboard:",
+            use_container_width=True,
+        ):
             st.session_state.page = "Dashboard"
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if st.button("Sign out", key="nav_sign_out"):
-            st.session_state.authenticated_user = None
+        if st.button(
+            "Sign out",
+            key="nav_sign_out",
+            icon=":material/logout:",
+            use_container_width=True,
+        ):
+            clear_auth_session()
             st.session_state.page = "Dashboard"
             st.rerun()
+
+        render_sidebar_help()
+
+
+def render_sidebar_help() -> None:
+    st.markdown(
+        """
+        <div class="sidebar-help-copy">
+            <div class="stat-title">Need Help?</div>
+            <div class="stat-meta">Contact support if you need help with a document.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.link_button(
+        "Contact support",
+        "https://www.facebook.com/cascostarica1",
+        icon=":material/support_agent:",
+        type="tertiary",
+        use_container_width=True,
+    )
 
 
 def render_topbar() -> None:
@@ -71,46 +103,29 @@ def render_topbar() -> None:
     )
 
 
-def render_status_panel() -> None:
+def render_progress_card() -> None:
     done, total = progress_metrics()
     pct = 0 if total == 0 else round((done / total) * 100)
     current_step = len(STAGES) if done == total else min(done // 3 + 1, len(STAGES))
 
-    left, right = st.columns([8, 4], gap="large", vertical_alignment="top")
-    with left:
-        st.markdown(
-            f"""
-            <div class="glass-card">
-                <div class="progress-head">
-                    <div class="stat-title">Your Process Progress</div>
-                    <div class="status-chip status-ready">Step {current_step} of {len(STAGES)}</div>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:{pct}%;"></div>
-                </div>
-                <div class="progress-meta">
-                    <div class="tiny">Please upload all required documents to move forward.</div>
-                    <div class="progress-number">{pct}%</div>
-                </div>
+    st.markdown(
+        f"""
+        <div class="glass-card progress-card">
+            <div class="progress-head">
+                <div class="progress-title">Your Process Progress</div>
+                <div class="status-chip status-ready">Step {current_step} of {len(STAGES)}</div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with right:
-        st.markdown(
-            """
-            <div class="soft-card">
-                <div class="stat-title">Need Help?</div>
-                <div class="stat-meta">Contact support if you need help with a document.</div>
-                <div style="margin-top:.9rem;">
-                    <a href="https://www.facebook.com/cascostarica1" target="_blank" style="text-decoration:none;">
-                        <button class="support-link">Contact support</button>
-                    </a>
-                </div>
+            <div class="progress-track">
+                <div class="progress-fill" style="width:{pct}%;"></div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            <div class="progress-meta">
+                <div class="tiny">Please upload all required documents to move forward.</div>
+                <div class="progress-number">{pct}%</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def format_file_size(size: int) -> str:
@@ -124,50 +139,45 @@ def format_file_size(size: int) -> str:
 def render_document_uploader(stage_id: int, rule: FileRule) -> None:
     result_key = validation_key(stage_id, rule.key)
     result = st.session_state.validation.get(result_key)
-    fields = rule.required_fields or ["No specific text fields required"]
+    fields = rule.required_fields or [rule.description or "Readable PDF document"]
 
-    st.markdown(
-        f"""
-        <div class="upload-card">
-            <div class="stat-title">{rule.label}</div>
-            <div class="tiny upload-description">{rule.description}</div>
-            <div class="upload-meta">
-                <div class="tiny"><b>Required information:</b></div>
+    with st.container(key=f"upload_item_{stage_id}_{rule.key}"):
+        st.markdown(
+            f"""
+            <div class="upload-summary">
+                <div class="upload-title-row">
+                    <div class="stat-title">{rule.label}</div>
+                    <span class="file-chip">PDF</span>
+                </div>
+                <div class="upload-divider"></div>
                 <ul>{''.join([f'<li>{field.replace("_", " ")}</li>' for field in fields])}</ul>
-                <div class="tiny"><b>Format:</b> PDF</div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    if result:
-        file_size = format_file_size(result.get("file_size", 0))
-        st.caption(f"Loaded: {result['file_name']} ({file_size})")
-        progress_bar = st.progress(
-            result.get("progress", 10),
-            text=result.get("message", "Preparing PDF..."),
+            """,
+            unsafe_allow_html=True,
         )
-        if result.get("processing"):
-            result = finish_uploaded_file(stage_id, rule, progress_bar)
-    else:
-        st.caption("Waiting for PDF")
-        st.progress(0, text="Select a PDF to begin")
 
-    st.file_uploader(
-        f"Upload {rule.label}",
-        type=["pdf"],
-        key=uploader_key(stage_id, rule.key),
-        label_visibility="collapsed",
-        on_change=process_uploaded_file,
-        args=(stage_id, rule),
-    )
+        st.file_uploader(
+            f"Upload {rule.label}",
+            type=["pdf"],
+            key=uploader_key(stage_id, rule.key),
+            label_visibility="collapsed",
+            on_change=process_uploaded_file,
+            args=(stage_id, rule),
+        )
 
-    if result:
-        if result["ok"]:
-            st.success(result["message"])
-        else:
-            st.error(result["message"])
+        if result:
+            file_size = format_file_size(result.get("file_size", 0))
+            st.caption(f"Loaded: {result['file_name']} ({file_size})")
+            if result.get("processing"):
+                progress_bar = st.progress(
+                    result.get("progress", 10),
+                    text=result.get("message", "Preparing PDF..."),
+                )
+                result = finish_uploaded_file(stage_id, rule, progress_bar)
+            elif result["ok"]:
+                st.success(result["message"])
+            else:
+                st.error(result["message"])
 
 
 def is_stage_unlocked(stage_id: int) -> bool:
@@ -195,46 +205,38 @@ def render_stage_header(stage: Dict[str, Any]) -> None:
         chip_text = "Locked"
         status_class = "status-locked"
 
-    left, right = st.columns([11, 1], vertical_alignment="center")
-    with left:
+    with st.container(key=f"stage_header_{stage_id}"):
         st.markdown(
             f"""
             <div class="stage-card {'active' if active else ''}">
                 <div class="stage-head">
                     <div class="stage-left">
-                        <div class="stage-badge">{stage["icon"]}</div>
+                        <div class="stage-badge">
+                            <span class="material-symbols-rounded">{stage["icon"]}</span>
+                        </div>
                         <div>
                             <p class="stage-title">{stage_id}. {stage["title"]}</p>
                             <p class="stage-desc">{stage["subtitle"]}</p>
                         </div>
                     </div>
-                    <span class="status-chip {status_class}">{chip_text}</span>
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    with right:
+        can_toggle = status == "completed" or unlocked
+        action_key = f"stage_action_{status_class.replace('status-', '')}_{stage_id}"
         if st.button(
-            ">",
-            key=f"toggle_{stage_id}",
-            disabled=not unlocked,
-            help="Open stage" if unlocked else "Complete the previous step first",
+            chip_text,
+            key=action_key,
+            disabled=not can_toggle,
+            help=("Close stage" if active else "Open stage") if can_toggle else "Complete the previous step first",
         ):
             st.session_state.expanded_stage = 0 if active else stage_id
 
 
 def render_stage_uploads(stage: Dict[str, Any]) -> None:
     stage_id = stage["id"]
-    st.markdown(
-        """
-        <div class="rule-box">
-            <div class="stat-title" style="margin-bottom:.3rem;">Upload 3 files for this step</div>
-            <div class="tiny">Each PDF is checked against the document rules for this stage.</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
     columns = st.columns(3, gap="medium")
     for column, rule in zip(columns, stage["files"]):
         with column:
