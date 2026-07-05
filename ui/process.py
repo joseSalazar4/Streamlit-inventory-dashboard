@@ -209,7 +209,7 @@ def render_stage_header(stage: Dict[str, Any]) -> None:
     with st.container(key=f"stage_header_{stage_id}"):
         st.markdown(
             f"""
-            <div class="stage-card {'active' if active else ''}">
+            <div class="stage-card stage-tone-{stage_id} {'active' if active else ''}">
                 <div class="stage-head">
                     <div class="stage-left">
                         <div class="stage-badge">

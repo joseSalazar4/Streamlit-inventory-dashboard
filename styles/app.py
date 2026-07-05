@@ -230,16 +230,27 @@ def inject_css() -> None:
         }
 
         .stage-card {
-            background:var(--cas-card); border:1px solid rgba(17,61,39,.10);
+            background:linear-gradient(90deg, var(--stage-soft, rgba(255,255,255,.82)) 0, var(--cas-card) 18%);
+            border:1px solid rgba(17,61,39,.10);
+            border-left:5px solid var(--stage-accent, rgba(21,79,49,.28));
             border-radius:14px; padding:1rem; margin-bottom:.85rem;
             box-shadow:0 8px 20px rgba(57,57,57,.05);
         }
-        .stage-card.active { border-color:rgba(21,79,49,.48); box-shadow:0 10px 24px rgba(21,79,49,.08); }
+        .stage-card.active {
+            border-color:rgba(21,79,49,.22);
+            border-left-color:var(--stage-accent, var(--cas-green));
+            box-shadow:0 10px 24px rgba(21,79,49,.08);
+        }
+        .stage-tone-1 { --stage-accent:#166534; --stage-soft:#eef8ec; }
+        .stage-tone-2 { --stage-accent:#2563eb; --stage-soft:#eef5ff; }
+        .stage-tone-3 { --stage-accent:#7c3aed; --stage-soft:#f5f0ff; }
+        .stage-tone-4 { --stage-accent:#d97706; --stage-soft:#fff7ed; }
+        .stage-tone-5 { --stage-accent:#be123c; --stage-soft:#fff1f3; }
         .stage-head { display:flex; justify-content:space-between; gap:1rem; align-items:center; }
         .stage-left { display:flex; gap:.85rem; align-items:center; }
         .stage-badge {
-            width:48px; height:48px; border-radius:50%; background:#e1ead7;
-            display:grid; place-items:center; color:#134228; font-weight:800; flex-shrink:0;
+            width:48px; height:48px; border-radius:50%; background:var(--stage-soft, #e1ead7);
+            display:grid; place-items:center; color:var(--stage-accent, #134228); font-weight:800; flex-shrink:0;
         }
         .stage-badge .material-symbols-rounded {
             font-family:"Material Symbols Rounded";
