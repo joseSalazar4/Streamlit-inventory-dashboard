@@ -1,0 +1,10 @@
+2026-07-26 14:46:24.236 Uvicorn server started on 127.0.0.1:8501
+2026-07-26 15:11:45.166 Uvicorn server started on 127.0.0.1:8501
+2026-07-26 15:13:50.820 Uvicorn server started on 127.0.0.1:8501
+2026-07-26 15:14:24.274 Please replace `st.components.v1.html` with `st.iframe`.
+
+`st.components.v1.html` will be removed after 2026-06-01.
+2026-07-26 15:15:23.178 Uvicorn server started on 127.0.0.1:8501
+2026-07-26 15:27:49.692 Please replace `st.components.v1.html` with `st.iframe`.
+
+`st.components.v1.html` will be removed after 2026-06-01.

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-from unittest.mock import patch
 
 from config.process import ALLOWED_UPLOAD_TYPES, DEFAULT_PHASES, phases_from_progress
 from document_storage import prepare_document
@@ -10,6 +9,7 @@ from ui.process import (
     allowed_type_label,
     format_display_name,
     is_phase_unlocked,
+    student_current_phase_index,
 )
 
 
@@ -21,17 +21,27 @@ class AdmissionProcessTests(unittest.TestCase):
 
     def test_student_cannot_open_a_phase_after_the_current_phase(self) -> None:
         phases = phases_from_progress(None)
-        session_state = {
-            "authenticated_user": {"is_test_user": False},
-            "admission_progress": {
-                "student": {"current_phase_id": "contrato"},
-            },
+        self.assertEqual(student_current_phase_index(phases), 1)
+        self.assertTrue(is_phase_unlocked(phases, 0))
+        self.assertTrue(is_phase_unlocked(phases, 1))
+        self.assertFalse(is_phase_unlocked(phases, 2))
+
+    def test_approved_contract_advances_the_student_to_phase_three(self) -> None:
+        progress = {
+            "phases": [
+                {"phase_id": "solicitud_aplicacion", "status": "needs_replacement"},
+                {"phase_id": "contrato", "status": "approved"},
+                {
+                    "phase_id": "documentos_complementarios",
+                    "status": "pending_review",
+                },
+            ],
         }
-        with patch("ui.process.st") as streamlit:
-            streamlit.session_state = session_state
-            self.assertTrue(is_phase_unlocked(phases, 0))
-            self.assertTrue(is_phase_unlocked(phases, 1))
-            self.assertFalse(is_phase_unlocked(phases, 2))
+        phases = phases_from_progress(progress)
+
+        self.assertEqual(student_current_phase_index(phases), 2)
+        self.assertTrue(is_phase_unlocked(phases, 2))
+        self.assertFalse(is_phase_unlocked(phases, 3))
 
     def test_contract_has_six_phases_and_exact_document_counts(self) -> None:
         self.assertEqual(len(DEFAULT_PHASES), 6)

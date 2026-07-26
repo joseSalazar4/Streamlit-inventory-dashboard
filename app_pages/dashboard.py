@@ -15,21 +15,26 @@ from ui.process import (
 
 
 def _load_progress() -> dict | None:
-    progress = st.session_state.get("admission_progress")
-    if progress:
-        return progress
+    cached_progress = st.session_state.get("admission_progress")
     user = st.session_state.get("authenticated_user") or {}
     if user.get("is_test_user") and not os.environ.get("CAS_TEST_STUDENT_ID", "").strip():
-        return None
+        return cached_progress
     student_id = str(user.get("student_id") or "")
     if not student_id:
-        return None
+        return cached_progress
     try:
         progress = get_admission_progress(student_id)
     except CasApiError:
-        return None
-    st.session_state.admission_progress = progress
+        return cached_progress
+    st.session_state["admission_progress"] = progress
     return progress
+
+
+@st.fragment
+def _render_phase_list(phases: list[dict]) -> None:
+    st.markdown("## Admission phases")
+    for phase_index, phase in enumerate(phases):
+        render_phase_card(phases, phase, phase_index)
 
 
 def dashboard_page() -> None:
@@ -41,6 +46,4 @@ def dashboard_page() -> None:
             render_progress_card(phases)
         with brand:
             render_user_identity()
-    st.markdown("## Admission phases")
-    for phase_index, phase in enumerate(phases):
-        render_phase_card(phases, phase, phase_index)
+    _render_phase_list(phases)

@@ -1,0 +1,79 @@
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://127.0.0.1:8501
+
+[timing] streamlit GET /process status=200 ms=2478
+[timing] streamlit GET /dashboard/documents status=200 ms=4216
+[timing] streamlit GET /dashboard/documents status=200 ms=1996
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1671
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=2272
+[timing] streamlit POST_FILE /students/E2E-20260726-144203/documents/contrato/cas-file status=200 bytes=2276 ms=10221
+[timing] streamlit GET /dashboard/documents status=200 ms=1928
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1416
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1455
+[timing] streamlit POST_FILE /students/E2E-20260726-144203/documents/factura_cas/cas-file status=200 bytes=2281 ms=11763
+[timing] streamlit GET /dashboard/documents status=200 ms=2320
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1413
+[timing] streamlit POST_FILE /students/E2E-20260726-144203/documents/factura_asesoria/cas-file status=200 bytes=2293 ms=11166
+[timing] streamlit GET /dashboard/documents status=200 ms=1931
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1381
+[timing] streamlit POST_FILE /students/E2E-20260726-144203/documents/confirmacion_admision/cas-file status=200 bytes=2297 ms=11923
+[timing] streamlit GET /dashboard/documents status=200 ms=1955
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1469
+[timing] streamlit GET /process status=200 ms=3
+[timing] streamlit GET /dashboard/documents status=200 ms=1945
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1356
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_contrato/review status=400 ms=2398
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1544
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_contrato/review status=400 ms=1371
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1425
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_contrato/review status=400 ms=1351
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://127.0.0.1:8501
+
+[timing] streamlit GET /process status=200 ms=939
+[timing] streamlit GET /dashboard/documents status=200 ms=2175
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1449
+[review] document_id=doc_E2E-20260726-144203_contrato decision=approved reviewer_user_id=admin
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_contrato/review status=400 ms=1607
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://127.0.0.1:8501
+
+[timing] streamlit GET /process status=200 ms=125
+[timing] streamlit GET /dashboard/documents status=200 ms=2410
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://127.0.0.1:8501
+
+[timing] streamlit POST /auth/microsoft status=200 ms=4259
+[timing] streamlit GET /process status=200 ms=1349
+[timing] streamlit GET /dashboard/documents status=200 ms=3521
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1933
+[review] document_id=doc_E2E-20260726-144203_contrato decision=approved reviewer_user_id=salazar@cas.cr
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_contrato/review status=200 ms=8281
+[timing] streamlit GET /dashboard/documents status=200 ms=2775
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=2040
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1908
+[review] document_id=doc_E2E-20260726-144203_agbs decision=approved reviewer_user_id=salazar@cas.cr
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_agbs/review status=200 ms=5184
+[timing] streamlit GET /dashboard/documents status=200 ms=3100
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=2225
+[review] document_id=doc_E2E-20260726-144203_reglas_programa decision=approved reviewer_user_id=salazar@cas.cr
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_reglas_programa/review status=200 ms=4142
+[timing] streamlit GET /dashboard/documents status=200 ms=2772
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=2339
+[review] document_id=doc_E2E-20260726-144203_factura_cas decision=approved reviewer_user_id=salazar@cas.cr
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_factura_cas/review status=200 ms=4412
+[timing] streamlit GET /dashboard/documents status=200 ms=2772
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=3250
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=1907
+[review] document_id=doc_E2E-20260726-144203_factura_asesoria decision=approved reviewer_user_id=salazar@cas.cr
+[timing] streamlit POST /documents/doc_E2E-20260726-144203_factura_asesoria/review status=200 ms=4601
+[timing] streamlit GET /dashboard/documents status=200 ms=2873
+[timing] streamlit GET /students/E2E-20260726-144203/admission-progress status=200 ms=2328

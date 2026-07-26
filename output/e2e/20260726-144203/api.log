@@ -1,0 +1,563 @@
+CAS API with student uploads listening on http://127.0.0.1:8081
+127.0.0.1 - "GET /health HTTP/1.1" 200 -
+[timing] api GET /health status=200 total_ms=0
+[timing] http POST https://login.microsoftonline.com/ac205862-5cc0-4dbb-a214-1b6cc4a74810/oauth2/v2.0/token status=200 ms=737
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/WhoAmI() status=200 ms=1965
+[timing] http POST https://login.microsoftonline.com/602f475d-6395-450b-9943-89d0044fe926/oauth2/v2.0/token status=200 ms=647
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=768
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=733
+127.0.0.1 - "GET /health/dependencies HTTP/1.1" 200 -
+[timing] api GET /health/dependencies status=200 total_ms=4883
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions status=200 ms=708
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=977
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions(LogicalName='cr65d_tipos_documentos_estudiantes')/Attributes(LogicalName='opti_owner_type')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata status=200 ms=704
+127.0.0.1 - "GET /process HTTP/1.1" 200 -
+[timing] api GET /process status=200 total_ms=2397
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions status=200 ms=676
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=725
+[timing] dataverse dashboard students count=13 ms=1406
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions(LogicalName='cr65d_documentos_estudiantes')/Attributes status=200 ms=771
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions status=200 ms=676
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1309
+[timing] dataverse dashboard documents count=172 ms=2766
+[timing] dataverse dashboard total_ms=4188
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=4213
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=706
+[timing] dataverse dashboard students count=14 ms=704
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1202
+[timing] dataverse dashboard documents count=172 ms=1218
+[timing] dataverse dashboard total_ms=1922
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=1989
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=975
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=688
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=0 ms=688
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1672
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1667
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=691
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=889
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=891
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=685
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=1 ms=687
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2265
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2269
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=681
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=694
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=745
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=717
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=708
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=756
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/contrato status=200 ms=843
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFF2PHN4WGFJKBB2PB6LODT3S6XG:/2 status=404 ms=741
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFF2PHN4WGFJKBB2PB6LODT3S6XG/children status=201 ms=953
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=contrato version=2 ms=4721
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/contrato/2/contrato.pdf:/content status=201 ms=1133
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=contrato version=2 bytes=2276 upload_ms=1133 total_ms=6600
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=704
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=709
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(afc06ae7-3389-f111-ab10-6045bd078178) status=204 ms=809
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/contrato/cas-file HTTP/1.1" 200 -
+[timing] api POST /students/E2E-20260726-144203/documents/contrato/cas-file status=200 total_ms=10212
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=708
+[timing] dataverse dashboard students count=14 ms=704
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1191
+[timing] dataverse dashboard documents count=173 ms=1187
+[timing] dataverse dashboard total_ms=1907
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=1926
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=662
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=733
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=1 ms=735
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1406
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1398
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=705
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=742
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=1 ms=735
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1438
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1451
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=761
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=783
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=821
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=692
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=806
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=762
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/factura_cas status=404 ms=840
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H/children status=201 ms=1143
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFDNMF7XSQY2HVG2KXRXTQCIJOUF:/1 status=404 ms=671
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFDNMF7XSQY2HVG2KXRXTQCIJOUF/children status=201 ms=917
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=factura_cas version=1 ms=5836
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/factura_cas/1/factura_cas.pdf:/content status=201 ms=1399
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=factura_cas version=1 bytes=2281 upload_ms=1399 total_ms=8057
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=706
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=702
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=204 ms=744
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/factura_cas/cas-file HTTP/1.1" 200 -
+[timing] api POST /students/E2E-20260726-144203/documents/factura_cas/cas-file status=200 total_ms=11758
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1063
+[timing] dataverse dashboard students count=14 ms=1062
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1224
+[timing] dataverse dashboard documents count=174 ms=1235
+[timing] dataverse dashboard total_ms=2297
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2318
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=674
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=732
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=2 ms=734
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1406
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1410
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=692
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=753
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=661
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=676
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=696
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=717
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/factura_asesoria status=404 ms=656
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H/children status=201 ms=1035
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFD4K4OGEFFQ7JDIAFYGDZFONGNC:/1 status=404 ms=732
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFD4K4OGEFFQ7JDIAFYGDZFONGNC/children status=201 ms=1015
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=factura_asesoria version=1 ms=5530
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/factura_asesoria/1/factura_asesoria.pdf:/content status=201 ms=1015
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=factura_asesoria version=1 bytes=2293 upload_ms=1016 total_ms=7208
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1037
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=723
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=204 ms=741
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/factura_asesoria/cas-file HTTP/1.1" 200 -
+[timing] api POST /students/E2E-20260726-144203/documents/factura_asesoria/cas-file status=200 total_ms=11161
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=668
+[timing] dataverse dashboard students count=14 ms=656
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1221
+[timing] dataverse dashboard documents count=175 ms=1234
+[timing] dataverse dashboard total_ms=1890
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=1916
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=687
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=688
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=3 ms=687
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1375
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1377
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=734
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=721
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=830
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=743
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=881
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=828
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/confirmacion_admision status=404 ms=944
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H/children status=201 ms=1062
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFGPIH7ZUXZADZHL3ZCJL3MRYJJP:/1 status=404 ms=768
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFGPIH7ZUXZADZHL3ZCJL3MRYJJP/children status=201 ms=1013
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=confirmacion_admision version=1 ms=6242
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/confirmacion_admision/1/confirmacion_admision.pdf:/content status=201 ms=1241
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=confirmacion_admision version=1 bytes=2297 upload_ms=1241 total_ms=8314
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=684
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=770
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=204 ms=690
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/confirmacion_admision/cas-file HTTP/1.1" 200 -
+[timing] api POST /students/E2E-20260726-144203/documents/confirmacion_admision/cas-file status=200 total_ms=11920
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=732
+[timing] dataverse dashboard students count=14 ms=735
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1194
+[timing] dataverse dashboard documents count=176 ms=1203
+[timing] dataverse dashboard total_ms=1938
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=1954
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=673
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=771
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=4 ms=782
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1453
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1447
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions status=200 ms=752
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_portal_userses status=200 ms=787
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions(LogicalName='opti_portal_users')/Attributes(LogicalName='opti_tipo_usuario')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata status=200 ms=722
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=724
+127.0.0.1 - "POST /auth/login HTTP/1.1" 200 -
+[timing] api POST /auth/login status=200 total_ms=3270
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=773
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=889
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=891
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=710
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=4 ms=719
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2391
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2382
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_portal_userses status=200 ms=919
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=697
+127.0.0.1 - "POST /auth/login HTTP/1.1" 200 -
+[timing] api POST /auth/login status=200 total_ms=1930
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=728
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=703
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=4 ms=703
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1437
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1435
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_portal_userses status=200 ms=910
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_portal_userses(6b9f4a4d-3389-f111-ab10-6045bd078178) status=204 ms=923
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_portal_userses(6b9f4a4d-3389-f111-ab10-6045bd078178) status=204 ms=776
+127.0.0.1 - "POST /auth/change-password HTTP/1.1" 200 -
+[timing] api POST /auth/change-password status=200 total_ms=3226
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=709
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=742
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=4 ms=750
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1454
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1454
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=712
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=697
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=732
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=726
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=714
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=765
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=772
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=761
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=759
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=780
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=694
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=741
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=773
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=781
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com:/sites/CostaRicaAustauschService status=200 ms=803
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=718
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=679
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=705
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=702
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos status=200 ms=718
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=740
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=738
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=765
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=732
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFAFBNHJ6HIP7FC3UAJJMKUWGU72:/Admissions status=200 ms=743
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=815
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=837
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=792
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=755
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFC2YE37BGCS4ZHLPELKF7KEY7CA:/E2E-20260726-144203 status=200 ms=809
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/reglas_programa status=404 ms=704
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/agbs status=404 ms=735
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/factura_asesoria status=200 ms=727
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/contrato status=200 ms=771
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H:/factura_cas status=200 ms=736
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFD4K4OGEFFQ7JDIAFYGDZFONGNC:/2 status=404 ms=693
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFF2PHN4WGFJKBB2PB6LODT3S6XG:/3 status=404 ms=726
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFDNMF7XSQY2HVG2KXRXTQCIJOUF:/2 status=404 ms=717
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H/children status=201 ms=1047
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFFPTE5CYAON5VBIGXYSMP7ITH7H/children status=201 ms=1045
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFD4K4OGEFFQ7JDIAFYGDZFONGNC/children status=201 ms=974
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=factura_asesoria version=2 ms=4616
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFF2PHN4WGFJKBB2PB6LODT3S6XG/children status=201 ms=953
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=contrato version=3 ms=4749
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFDNMF7XSQY2HVG2KXRXTQCIJOUF/children status=201 ms=965
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=factura_cas version=2 ms=4691
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFENITVCCBTKPFAYA2YR52KH2UA6:/1 status=404 ms=737
+[timing] http GET https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFEU6FNIXUV2LBE2UXMTUIHLABMG:/1 status=404 ms=782
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFEU6FNIXUV2LBE2UXMTUIHLABMG/children status=201 ms=959
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=reglas_programa version=1 ms=5761
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/factura_asesoria/2/factura_asesoria.pdf:/content status=201 ms=1104
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=factura_asesoria version=2 bytes=2293 upload_ms=1104 total_ms=6524
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/factura_cas/2/factura_cas.pdf:/content status=201 ms=1121
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=factura_cas version=2 bytes=2281 upload_ms=1123 total_ms=6595
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/contrato/3/contrato.pdf:/content status=201 ms=1143
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=contrato version=3 bytes=2276 upload_ms=1145 total_ms=6588
+[timing] http POST https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/items/01FYE7LFENITVCCBTKPFAYA2YR52KH2UA6/children status=201 ms=1092
+[timing] sharepoint ensure_admission_folder student_id=E2E-20260726-144203 document_type_id=agbs version=1 ms=5846
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=774
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=848
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=855
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/reglas_programa/1/reglas_programa.pdf:/content status=201 ms=1357
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=reglas_programa version=1 bytes=2273 upload_ms=1358 total_ms=7861
+[timing] http PUT https://graph.microsoft.com/v1.0/sites/cascostarica.sharepoint.com,01fcd387-a4ce-494c-8243-8f33f81ca93c,ddfd3a17-7c74-491b-a178-ecd6e9038455/drive/root:/CAS%20Drive/OPTIMA/Plataforma%20Documentos/Admissions/E2E-20260726-144203/agbs/1/agbs.pdf:/content status=201 ms=1401
+[timing] sharepoint upload_admission_file student_id=E2E-20260726-144203 document_type_id=agbs version=1 bytes=2256 upload_ms=1401 total_ms=8021
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=1089
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=1092
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=1100
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=848
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=983
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=980
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=905
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=858
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1029
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=807
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(c2ccc370-3489-f111-ab10-6045bd078178) status=204 ms=944
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/factura_asesoria/student-file HTTP/1.1" 201 -
+[timing] api POST /students/E2E-20260726-144203/documents/factura_asesoria/student-file status=201 total_ms=11838
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(d59cca50-3489-f111-ab10-6045bd078178) status=204 ms=864
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/factura_cas/student-file HTTP/1.1" 201 -
+[timing] api POST /students/E2E-20260726-144203/documents/factura_cas/student-file status=201 total_ms=11860
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(afc06ae7-3389-f111-ab10-6045bd078178) status=204 ms=931
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=204 ms=933
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/contrato/student-file HTTP/1.1" 201 -
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/reglas_programa/student-file HTTP/1.1" 201 -
+[timing] api POST /students/E2E-20260726-144203/documents/reglas_programa/student-file status=201 total_ms=12045
+[timing] api POST /students/E2E-20260726-144203/documents/contrato/student-file status=201 total_ms=12054
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=204 ms=832
+127.0.0.1 - "POST /students/E2E-20260726-144203/documents/agbs/student-file HTTP/1.1" 201 -
+[timing] api POST /students/E2E-20260726-144203/documents/agbs/student-file status=201 total_ms=12181
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=751
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=722
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=719
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1469
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1482
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=711
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=800
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=797
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1516
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1520
+127.0.0.1 - "GET /process HTTP/1.1" 200 -
+[timing] api GET /process status=200 total_ms=1
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=690
+[timing] dataverse dashboard students count=14 ms=672
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1206
+[timing] dataverse dashboard documents count=178 ms=1235
+[timing] dataverse dashboard total_ms=1907
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=1924
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=677
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=672
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=688
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1360
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1354
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=948
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions status=200 ms=737
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=706
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_contrato/review HTTP/1.1" 400 -
+[timing] api POST /documents/doc_E2E-20260726-144203_contrato/review status=400 total_ms=2393
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=873
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=659
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=656
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1531
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1539
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=688
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=676
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_contrato/review HTTP/1.1" 400 -
+[timing] api POST /documents/doc_E2E-20260726-144203_contrato/review status=400 total_ms=1365
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=731
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=685
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=687
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1422
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1422
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=684
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=659
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_contrato/review HTTP/1.1" 400 -
+[timing] api POST /documents/doc_E2E-20260726-144203_contrato/review status=400 total_ms=1345
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=842
+127.0.0.1 - "GET /process HTTP/1.1" 200 -
+[timing] api GET /process status=200 total_ms=846
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=689
+[timing] dataverse dashboard students count=14 ms=687
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1430
+[timing] dataverse dashboard documents count=178 ms=1438
+[timing] dataverse dashboard total_ms=2125
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2173
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=736
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=706
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=703
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1453
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1446
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=791
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=717
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_contrato/review HTTP/1.1" 400 -
+[timing] api POST /documents/doc_E2E-20260726-144203_contrato/review status=400 total_ms=1534
+127.0.0.1 - "GET /process HTTP/1.1" 200 -
+[timing] api GET /process status=200 total_ms=5
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=987
+[timing] dataverse dashboard students count=14 ms=984
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1377
+[timing] dataverse dashboard documents count=178 ms=1391
+[timing] dataverse dashboard total_ms=2375
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2395
+[timing] http GET https://graph.microsoft.com/v1.0/me status=200 ms=1574
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=1104
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions(LogicalName='opti_usuarios')/Attributes(LogicalName='opti_rol')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata status=200 ms=1574
+127.0.0.1 - "POST /auth/microsoft HTTP/1.1" 200 -
+[timing] api POST /auth/microsoft status=200 total_ms=4255
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=1343
+127.0.0.1 - "GET /process HTTP/1.1" 200 -
+[timing] api GET /process status=200 total_ms=1347
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1126
+[timing] dataverse dashboard students count=14 ms=1141
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=2366
+[timing] dataverse dashboard documents count=178 ms=2375
+[timing] dataverse dashboard total_ms=3516
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=3519
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=903
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1019
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1016
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1922
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1928
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1097
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=1146
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(afc06ae7-3389-f111-ab10-6045bd078178) status=204 ms=1694
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions(LogicalName='opti_document_reviews')/Attributes(LogicalName='opti_estado_revision')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata status=200 ms=1255
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/EntityDefinitions status=200 ms=1034
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_document_reviewses status=204 ms=2046
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_contrato/review HTTP/1.1" 200 -
+[timing] api POST /documents/doc_E2E-20260726-144203_contrato/review status=200 total_ms=8275
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1011
+[timing] dataverse dashboard students count=14 ms=1000
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1735
+[timing] dataverse dashboard documents count=178 ms=1735
+[timing] dataverse dashboard total_ms=2750
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2772
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=959
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1074
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1078
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2047
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2039
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=920
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=978
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=985
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1906
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1903
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1135
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=1559
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(869009d5-3589-f111-ab10-6045bd078178) status=204 ms=1442
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_document_reviewses status=204 ms=1042
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_agbs/review HTTP/1.1" 200 -
+[timing] api POST /documents/doc_E2E-20260726-144203_agbs/review status=200 total_ms=5180
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=923
+[timing] dataverse dashboard students count=14 ms=922
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=2150
+[timing] dataverse dashboard documents count=178 ms=2156
+[timing] dataverse dashboard total_ms=3094
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=3098
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1053
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1166
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1156
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2219
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2223
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=912
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=1038
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(859009d5-3589-f111-ab10-6045bd078178) status=204 ms=1107
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_document_reviewses status=204 ms=1077
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_reglas_programa/review HTTP/1.1" 200 -
+[timing] api POST /documents/doc_E2E-20260726-144203_reglas_programa/review status=200 total_ms=4136
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1010
+[timing] dataverse dashboard students count=14 ms=1016
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1727
+[timing] dataverse dashboard documents count=178 ms=1734
+[timing] dataverse dashboard total_ms=2750
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2771
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1070
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1262
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1250
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2328
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2336
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1084
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=1075
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(d59cca50-3489-f111-ab10-6045bd078178) status=204 ms=1117
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_document_reviewses status=204 ms=1130
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_factura_cas/review HTTP/1.1" 200 -
+[timing] api POST /documents/doc_E2E-20260726-144203_factura_cas/review status=200 total_ms=4408
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=994
+[timing] dataverse dashboard students count=14 ms=1000
+[timing] dataverse dashboard document_types count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1746
+[timing] dataverse dashboard documents count=178 ms=1750
+[timing] dataverse dashboard total_ms=2750
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2770
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1908
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1337
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1344
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=3250
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=3248
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=2595
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_tipos_documentos_estudianteses status=200 ms=1732
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=1734
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1238
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1235
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=5563
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=5571
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=967
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=934
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=938
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=1907
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=1905
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1260
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_usuarioses status=200 ms=1126
+[timing] http PATCH https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses(c2ccc370-3489-f111-ab10-6045bd078178) status=204 ms=1144
+[timing] http POST https://orgf647582f.crm.dynamics.com/api/data/v9.2/opti_document_reviewses status=204 ms=1045
+127.0.0.1 - "POST /documents/doc_E2E-20260726-144203_factura_asesoria/review HTTP/1.1" 200 -
+[timing] api POST /documents/doc_E2E-20260726-144203_factura_asesoria/review status=200 total_ms=4578
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1100
+[timing] dataverse dashboard students count=14 ms=1094
+[timing] dataverse dashboard document_types count=33 ms=16
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1744
+[timing] dataverse dashboard documents count=178 ms=1734
+[timing] dataverse dashboard total_ms=2844
+127.0.0.1 - "GET /dashboard/documents HTTP/1.1" 200 -
+[timing] api GET /dashboard/documents status=200 total_ms=2869
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1157
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1165
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1172
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2328
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2326
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_estudianteses status=200 ms=1154
+[timing] dataverse admission_progress document_types student_id=E2E-20260726-144203 count=33 ms=0
+[timing] http GET https://orgf647582f.crm.dynamics.com/api/data/v9.2/cr65d_documentos_estudianteses status=200 ms=1072
+[timing] dataverse admission_progress documents student_id=E2E-20260726-144203 count=6 ms=1063
+[timing] dataverse admission_progress student_id=E2E-20260726-144203 total_ms=2234
+127.0.0.1 - "GET /students/E2E-20260726-144203/admission-progress HTTP/1.1" 200 -
+[timing] api GET /students/E2E-20260726-144203/admission-progress status=200 total_ms=2231

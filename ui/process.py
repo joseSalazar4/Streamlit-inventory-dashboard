@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import partial
 from html import escape
 import logging
 import re
@@ -7,7 +8,11 @@ from typing import Any, Dict, Iterable, Tuple
 
 import streamlit as st
 
-from api.cas_api import document_download_url, document_template_download_url
+from api.cas_api import (
+    document_download_url,
+    document_template_download_url,
+    download_file,
+)
 from auth.session_cookie import sign_out_current_user
 from models.file_rule import FileRule
 from validators.files import (
@@ -27,6 +32,7 @@ REMOTE_FILE_STATUSES = {
 LOGGER = logging.getLogger(__name__)
 SUPPORT_URL = "https://wa.me/4915231897485"
 NAME_PART_PATTERN = re.compile(r"[^\W\d_]+", re.UNICODE)
+MINIMUM_STUDENT_PHASE_INDEX = 1
 
 
 def format_display_name(value: object) -> str:
@@ -71,6 +77,16 @@ def phase_status(phase: Dict[str, Any]) -> Tuple[str, str]:
     if any(result.get("storage_status") == "ready_to_submit" for result in results):
         return "ready", "Ready to submit"
     return "pending", "Pending"
+
+
+def student_current_phase_index(phases: list[Dict[str, Any]]) -> int:
+    if not phases:
+        return 0
+    minimum_index = min(MINIMUM_STUDENT_PHASE_INDEX, len(phases) - 1)
+    for phase_index in range(minimum_index, len(phases)):
+        if str(phases[phase_index].get("status") or "") != "approved":
+            return phase_index
+    return len(phases) - 1
 
 
 def progress_metrics(phases: Iterable[Dict[str, Any]]) -> Tuple[int, int]:
@@ -184,17 +200,7 @@ def render_user_identity() -> None:
 def render_progress_card(phases: list[Dict[str, Any]]) -> None:
     done, total = progress_metrics(phases)
     percentage = 0 if total == 0 else round((done / total) * 100)
-    progress = st.session_state.get("admission_progress") or {}
-    current_phase_id = str((progress.get("student") or {}).get("current_phase_id") or "")
-    current_phase = next(
-        (phase["number"] for phase in phases if str(phase["id"]) == current_phase_id),
-        None,
-    )
-    if current_phase is None:
-        current_phase = next(
-            (phase["number"] for phase in phases if phase_status(phase)[0] != "completed"),
-            len(phases),
-        )
+    current_phase = phases[student_current_phase_index(phases)]["number"]
 
     st.markdown(
         f"""
@@ -300,6 +306,13 @@ def _download_rules(phase: Dict[str, Any]) -> list[FileRule]:
     )
 
 
+def _download_file_name(rule: FileRule) -> str:
+    if rule.file_name:
+        return rule.file_name
+    extension = "pdf" if "pdf" in rule.allowed_types else rule.allowed_types[0]
+    return f"{rule.key}.{extension}"
+
+
 def _render_download_button(phase_id: str, rule: FileRule) -> None:
     key = f"download_{phase_id}_{rule.key}"
     if rule.flow_type == "external_link_only":
@@ -322,20 +335,29 @@ def _render_download_button(phase_id: str, rule: FileRule) -> None:
                 width="stretch",
             )
             return
-        st.link_button(
+        st.download_button(
             rule.label,
-            document_template_download_url(rule.key, scope="global"),
+            data=partial(
+                download_file,
+                document_template_download_url(rule.key, scope="global"),
+            ),
+            file_name=_download_file_name(rule),
+            mime="application/octet-stream",
             key=key,
             icon=":material/download:",
+            on_click="ignore",
             width="stretch",
         )
         return
     if rule.document_id:
-        st.link_button(
+        st.download_button(
             rule.label,
-            document_download_url(rule.document_id),
+            data=partial(download_file, document_download_url(rule.document_id)),
+            file_name=_download_file_name(rule),
+            mime="application/octet-stream",
             key=key,
             icon=":material/download:",
+            on_click="ignore",
             width="stretch",
         )
         return
@@ -415,17 +437,13 @@ def render_phase_submit(phase: Dict[str, Any], placement: str) -> None:
 
 
 def is_phase_unlocked(phases: list[Dict[str, Any]], phase_index: int) -> bool:
-    progress = st.session_state.get("admission_progress") or {}
-    current_phase_id = str((progress.get("student") or {}).get("current_phase_id") or "")
-    current_phase_index = next(
-        (
-            index
-            for index, item in enumerate(phases)
-            if str(item["id"]) == current_phase_id
-        ),
-        0,
+    return phase_index <= student_current_phase_index(phases)
+
+
+def _toggle_phase(phase_id: str) -> None:
+    st.session_state.expanded_phase = (
+        "" if st.session_state.expanded_phase == phase_id else phase_id
     )
-    return phase_index <= current_phase_index
 
 
 def render_phase_header(
@@ -434,6 +452,8 @@ def render_phase_header(
     phase_index: int,
 ) -> None:
     status, status_label = phase_status(phase)
+    if phase_index < MINIMUM_STUDENT_PHASE_INDEX:
+        status, status_label = "completed", "Completed"
     phase_id = str(phase["id"])
     unlocked = is_phase_unlocked(phases, phase_index)
     active = unlocked and st.session_state.expanded_phase == phase_id
@@ -475,7 +495,7 @@ def render_phase_header(
             """,
             unsafe_allow_html=True,
         )
-        if st.button(
+        st.button(
             chip_text,
             key=f"phase_action_{status_class}_{phase_id}",
             icon=action_icon,
@@ -485,9 +505,9 @@ def render_phase_header(
                 if unlocked
                 else "CAS will unlock this phase after approving the current phase."
             ),
-        ):
-            st.session_state.expanded_phase = "" if active else phase_id
-            st.rerun()
+            on_click=_toggle_phase,
+            args=(phase_id,),
+        )
 
 
 def render_phase_uploads(phase: Dict[str, Any]) -> None:

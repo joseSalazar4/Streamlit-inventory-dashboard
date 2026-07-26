@@ -178,6 +178,22 @@ def document_template_download_url(document_type_id: str, scope: str = "global")
     return f"{api_base_url()}/document-templates/{encoded}/download?{query}"
 
 
+def download_file(url: str) -> bytes:
+    api_request = request.Request(
+        url,
+        headers={"Accept": "application/octet-stream"},
+        method="GET",
+    )
+    try:
+        with request.urlopen(api_request, timeout=150) as response:
+            return response.read()
+    except HTTPError as exc:
+        raise _api_error(exc) from exc
+    except (URLError, TimeoutError, socket.timeout, ConnectionError, OSError) as exc:
+        reason = getattr(exc, "reason", exc)
+        raise CasApiError(f"The file could not be downloaded: {reason}") from exc
+
+
 def _request_json(
     method: str,
     path: str,

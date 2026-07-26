@@ -14,6 +14,7 @@ from api.cas_api import (
     change_password,
     document_download_url,
     document_template_download_url,
+    download_file,
     request_password_reset,
     upload_student_file,
     upload_student_files,
@@ -133,6 +134,19 @@ class CasApiClientTests(unittest.TestCase):
             document_template_download_url("reglas_programa"),
             "http://api.test/document-templates/reglas_programa/download?scope=global",
         )
+
+    @patch("api.cas_api.request.urlopen")
+    def test_download_file_fetches_bytes_when_clicked(self, urlopen: Mock) -> None:
+        file_response = response({})
+        file_response.read.return_value = b"%PDF-1.7"
+        urlopen.return_value = file_response
+
+        content = download_file("http://api.test/documents/DOC-1/download")
+        sent = urlopen.call_args.args[0]
+
+        self.assertEqual(content, b"%PDF-1.7")
+        self.assertEqual(sent.full_url, "http://api.test/documents/DOC-1/download")
+        self.assertEqual(sent.get_header("Accept"), "application/octet-stream")
 
     def test_aborted_error_body_is_reported_as_api_error(self) -> None:
         error = HTTPError(
