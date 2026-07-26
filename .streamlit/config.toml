@@ -3,3 +3,7 @@ primaryColor = "#1b5936"
 backgroundColor = "#f7f3ea"
 secondaryBackgroundColor = "#e7f3e7"
 textColor = "#103b25"
+
+[server]
+address = "0.0.0.0"
+headless = true

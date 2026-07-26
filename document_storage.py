@@ -6,10 +6,10 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class DocumentUpload:
-    """Immutable file payload shared by validation and future cloud storage."""
+    """Immutable student file payload submitted through the CAS API."""
 
-    stage_id: int
-    document_key: str
+    phase_id: str
+    document_type_id: str
     file_name: str
     content_type: str
     data: bytes
@@ -21,15 +21,15 @@ class DocumentUpload:
 
 
 def prepare_document(
-    stage_id: int,
-    document_key: str,
+    phase_id: str,
+    document_type_id: str,
     file_name: str,
     content_type: str,
     data: bytes,
 ) -> DocumentUpload:
     return DocumentUpload(
-        stage_id=stage_id,
-        document_key=document_key,
+        phase_id=phase_id,
+        document_type_id=document_type_id,
         file_name=file_name,
         content_type=content_type,
         data=data,

@@ -1,33 +1,29 @@
 from __future__ import annotations
 
-import re
-from typing import Dict
+import logging
+import os
+from typing import Any, Dict
 
 import streamlit as st
 
-from auth.email_codes import (
-    MAX_EMAIL_CODE_ATTEMPTS,
-    create_email_challenge,
-    get_attempts_remaining,
-    validate_email_code,
-)
-from auth.resend_email import (
-    get_last_email_error,
-    send_password_reset_code,
-    send_verification_code,
+from api.cas_api import (
+    CasApiError,
+    authenticate_student,
+    change_password,
+    get_admission_progress,
+    request_password_reset,
 )
 from auth.session_cookie import start_auth_session
 
 
-DUPLICATE_EMAIL_MESSAGE = "An account with this email already exists. Please sign in or reset your password."
-
-
-def password_requirements(password: str) -> Dict[str, bool]:
-    return {
-        "At least 8 characters": len(password) >= 8,
-        "At least one number": bool(re.search(r"\d", password)),
-        "At least one special character": bool(re.search(r"[^A-Za-z0-9]", password)),
-    }
+TEST_USERNAME = "admin"
+TEST_PASSWORD = "admin"
+LOGGER = logging.getLogger(__name__)
+SAFE_ACCOUNT_ERRORS = {
+    "This portal is available to students only.",
+    "Your account is not linked to a student profile. Contact support.",
+    "Your account information could not be verified. Contact support.",
+}
 
 
 def _auth_header() -> None:
@@ -45,221 +41,233 @@ def _auth_header() -> None:
     )
 
 
-def _password_is_valid(password: str) -> bool:
-    return all(password_requirements(password).values())
-
-
-def _email_already_exists(email: str) -> bool:
-    # SQL TODO: SELECT 1 FROM users WHERE email_hash=...
-    return False
-
-
-def _start_signup(username: str, full_name: str, email: str, password: str) -> bool:
-    code, challenge = create_email_challenge()
-    if not send_verification_code(email, code, full_name):
-        return False
-
-    st.session_state.pending_signup = {
-        "username": username,
-        "full_name": full_name,
-        "email": email,
-        "password": password,
+def _test_student() -> Dict[str, Any]:
+    student_id = os.environ.get("CAS_TEST_STUDENT_ID", "").strip()
+    return {
+        "id": student_id,
+        "student_id": student_id,
+        "username": TEST_USERNAME,
+        "email": "admin@local.test",
+        "full_name": os.environ.get("CAS_TEST_STUDENT_NAME", "Test Student").strip() or "Test Student",
+        "user_type": "student",
+        "is_test_user": True,
     }
-    st.session_state.email_challenge = challenge
-    st.session_state.auth_step = "verify"
-    return True
 
 
-def _complete_signup() -> None:
-    pending = st.session_state.pending_signup
-    # TODO: Hash password before storing. Store password_hash, never plaintext.
-    # SQL TODO: INSERT INTO users (username, full_name, email_hash, password_hash, email_verified) VALUES (..., ..., ..., ..., 1).
+def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict[str, Any] | None]:
+    test_student_id = os.environ.get("CAS_TEST_STUDENT_ID", "").strip()
+    if (
+        test_student_id
+        and email.strip().lower() == TEST_USERNAME
+        and password == TEST_PASSWORD
+    ):
+        user = _test_student()
+        try:
+            progress = get_admission_progress(user["student_id"])
+        except CasApiError:
+            progress = None
+        return user, progress
+
+    payload = authenticate_student(email, password)
+    api_user = payload.get("user") or {}
+    if str(api_user.get("user_type") or "").lower() != "student":
+        raise CasApiError("This portal is available to students only.")
+    student_id = str(api_user.get("student_id") or "").strip()
+    if not student_id:
+        raise CasApiError("Your account is not linked to a student profile. Contact support.")
+
+    progress = get_admission_progress(student_id)
+    student = progress.get("student") or {}
+    matched_email = str(student.get("email") or api_user.get("email") or "").strip().lower()
+    if matched_email != email.strip().lower():
+        raise CasApiError("Your account information could not be verified. Contact support.")
     user = {
-        "username": pending["username"],
-        "full_name": pending["full_name"],
-        "email": pending["email"],
+        "id": student_id,
+        "student_id": student_id,
+        "username": matched_email,
+        "email": matched_email,
+        "full_name": str(student.get("full_name") or matched_email),
+        "user_type": "student",
+        "is_test_user": False,
+        "password_change_required": bool(api_user.get("password_change_required")),
+        "password_change_token": str(payload.get("password_change_token") or ""),
     }
-    start_auth_session(user)
-    for key in ("signup_username", "signup_full_name", "signup_email", "signup_password", "email_code"):
-        st.session_state.pop(key, None)
-    st.session_state.pending_signup = None
-    st.session_state.email_challenge = None
-    st.session_state.auth_step = "signup"
-    st.session_state.page = "Dashboard"
-    st.rerun()
+    return user, progress
 
 
-def _render_signup_form() -> None:
-    st.markdown("### Create your account")
-    username = st.text_input("Username", key="signup_username")
-    full_name = st.text_input("Full name", key="signup_full_name")
-    email = st.text_input("Email", key="signup_email")
-    password = st.text_input("Password", type="password", key="signup_password")
-    st.caption("Password requirements: 8+ characters, number, special character.")
-    password_ok = _password_is_valid(password)
+def _render_student_sign_in() -> None:
+    with st.form("student_sign_in", enter_to_submit=True, border=False):
+        email = st.text_input("Email or username", key="signin_email")
+        password = st.text_input("Password", type="password", key="signin_password")
+        submitted = st.form_submit_button(
+            "Sign in",
+            type="primary",
+            icon=":material/login:",
+            width="stretch",
+        )
 
-    if st.button("Send verification code", type="primary", use_container_width=True):
-        if not username or not full_name or not email or not password:
-            st.error("Complete all fields.")
+    if submitted:
+        if not email or not password:
+            st.error("Enter your email and password.")
             return
-        if not password_ok:
-            st.error("Complete the password requirements.")
-            return
-        if _email_already_exists(email):
-            st.error(DUPLICATE_EMAIL_MESSAGE)
-            return
-        if not _start_signup(username, full_name, email, password):
-            st.error("Could not send the verification email. Check the Resend email setup.")
-            if get_last_email_error():
-                st.caption(get_last_email_error())
-            return
-        st.rerun()
-
-
-def _render_code_step() -> None:
-    pending = st.session_state.get("pending_signup") or {}
-    challenge = st.session_state.get("email_challenge")
-    attempts_remaining = get_attempts_remaining(challenge)
-    st.markdown("### Verify your email")
-    st.caption(f"Enter the 6-digit code for {pending.get('email', 'your email')}.")
-    st.caption(f"Attempts remaining: {attempts_remaining} of {MAX_EMAIL_CODE_ATTEMPTS}")
-    if attempts_remaining <= 0:
-        st.warning("Too many incorrect attempts. Send a new code to try again.")
-    code = st.text_input("Verification code", max_chars=6, key="email_code")
-
-    left, right = st.columns(2)
-    with left:
-        if st.button("Verify code", type="primary", use_container_width=True, disabled=attempts_remaining <= 0):
-            ok, message = validate_email_code(code, st.session_state.get("email_challenge"))
-            if ok:
-                st.success(message)
-                _complete_signup()
+        try:
+            with st.spinner("Signing in..."):
+                user, progress = _student_from_login(email, password)
+        except CasApiError as exc:
+            LOGGER.warning("Student sign-in failed: %s", exc)
+            if exc.code == "temporary_password_expired":
+                st.error("Your temporary password expired. Request a new password reset.")
+            elif exc.status in {401, 403}:
+                st.error("Invalid email or password.")
+            elif str(exc) in SAFE_ACCOUNT_ERRORS:
+                st.error(str(exc))
             else:
-                st.error(message)
-    with right:
-        if st.button("Send new code", use_container_width=True):
-            pending = st.session_state.get("pending_signup")
-            if pending:
-                code, challenge = create_email_challenge()
-                st.session_state.email_challenge = challenge
-                if not send_verification_code(pending["email"], code, pending.get("full_name", "")):
-                    st.error("Could not send the verification email. Check the Resend email setup.")
-                    if get_last_email_error():
-                        st.caption(get_last_email_error())
-                    return
-                st.rerun()
+                st.error("We couldn't sign you in right now. Please try again.")
+            return
+
+        password_change_required = bool(user.pop("password_change_required", False))
+        password_change_token = str(user.pop("password_change_token", ""))
+        if password_change_required:
+            if not password_change_token:
+                st.error("Password reset could not be completed. Request a new reset.")
+                return
+            st.session_state.pending_auth_user = user
+            st.session_state.pending_auth_progress = progress
+            st.session_state.pending_auth_email = str(user.get("email") or email).strip().lower()
+            st.session_state.password_change_token = password_change_token
+            st.session_state.auth_view = "change_password"
+            st.rerun()
+
+        start_auth_session(user)
+        st.session_state.admission_progress = progress
+        st.session_state.page = "Dashboard"
+        st.rerun()
+
+    if st.button(
+        "Forgot password?",
+        key="forgot_password",
+        type="tertiary",
+        width="stretch",
+    ):
+        st.session_state.auth_view = "forgot_password"
+        st.rerun()
 
 
-def _start_password_reset(email: str) -> bool:
-    code, challenge = create_email_challenge()
-    if not send_password_reset_code(email, code):
-        return False
+def _render_forgot_password() -> None:
+    with st.form("forgot_password_form", enter_to_submit=True, border=False):
+        email = st.text_input("Student email", key="reset_email")
+        submitted = st.form_submit_button(
+            "Send password reset",
+            type="primary",
+            icon=":material/mail:",
+            width="stretch",
+        )
 
-    st.session_state.pending_password_reset = {"email": email}
-    st.session_state.password_reset_challenge = challenge
-    st.session_state.auth_step = "reset"
-    return True
-
-
-def _clear_password_reset_state() -> None:
-    for key in ("reset_email", "reset_code", "reset_password"):
-        st.session_state.pop(key, None)
-    st.session_state.pending_password_reset = None
-    st.session_state.password_reset_challenge = None
-
-
-def _render_forgot_password_request() -> None:
-    st.markdown("### Reset password")
-    st.caption("Enter your email and we will send a reset code.")
-    email = st.text_input("Email", key="reset_email")
-
-    if st.button("Send reset code", type="primary", use_container_width=True):
+    if submitted:
         if not email:
-            st.error("Enter your email.")
-            return
-        if not _start_password_reset(email):
-            st.error("Could not send the reset email. Check the Resend email setup.")
-            if get_last_email_error():
-                st.caption(get_last_email_error())
-            return
-        st.rerun()
-
-    if st.button("Back to sign in", key="reset_back_to_signin", type="secondary"):
-        _clear_password_reset_state()
-        st.session_state.auth_step = "signin"
-        st.session_state.auth_mode = "Sign In"
-        st.rerun()
-
-
-def _render_reset_password_step() -> None:
-    pending = st.session_state.get("pending_password_reset") or {}
-    challenge = st.session_state.get("password_reset_challenge")
-    attempts_remaining = get_attempts_remaining(challenge)
-
-    st.markdown("### Enter reset code")
-    st.caption(f"Enter the 6-digit code for {pending.get('email', 'your email')}.")
-    st.caption(f"Attempts remaining: {attempts_remaining} of {MAX_EMAIL_CODE_ATTEMPTS}")
-    if attempts_remaining <= 0:
-        st.warning("Too many incorrect attempts. Send a new code to try again.")
-
-    code = st.text_input("Reset code", max_chars=6, key="reset_code")
-    new_password = st.text_input("New password", type="password", key="reset_password")
-    st.caption("Password requirements: 8+ characters, number, special character.")
-
-    left, right = st.columns(2)
-    with left:
-        if st.button("Save password", type="primary", use_container_width=True, disabled=attempts_remaining <= 0):
-            ok, message = validate_email_code(code, st.session_state.get("password_reset_challenge"))
-            if not ok:
-                st.error(message)
-                return
-            if not _password_is_valid(new_password):
-                st.error("Complete the password requirements.")
-                return
-            # SQL TODO: UPDATE users SET password_hash=... WHERE email_hash=...
-            _clear_password_reset_state()
-            st.session_state.auth_notice = "Password updated. Please sign in."
-            st.session_state.auth_step = "signin"
-            st.session_state.auth_mode = "Sign In"
-            st.rerun()
-    with right:
-        if st.button("Send new code", use_container_width=True):
-            email = pending.get("email", "")
-            if email and _start_password_reset(email):
+            st.error("Enter your student email.")
+        else:
+            try:
+                with st.spinner("Sending password reset..."):
+                    request_password_reset(email)
+                st.session_state.auth_notice = (
+                    "If an account exists for that email, a temporary password has been sent."
+                )
+                st.session_state.auth_view = "sign_in"
                 st.rerun()
-            st.error("Could not send the reset email. Check the Resend email setup.")
-            if get_last_email_error():
-                st.caption(get_last_email_error())
+            except CasApiError as exc:
+                LOGGER.warning("Password reset request failed: %s", exc)
+                st.error("Password reset is unavailable right now. Please try again later.")
 
-    if st.button("Back to sign in", key="reset_code_back_to_signin", type="secondary"):
-        _clear_password_reset_state()
-        st.session_state.auth_step = "signin"
-        st.session_state.auth_mode = "Sign In"
+    if st.button(
+        "Back to sign in",
+        key="reset_back_to_signin",
+        icon=":material/arrow_back:",
+        type="tertiary",
+        width="stretch",
+    ):
+        st.session_state.auth_view = "sign_in"
         st.rerun()
 
 
-def _render_sign_in() -> None:
-    st.markdown("### Sign in")
-    username = st.text_input("Username", key="signin_username")
-    password = st.text_input("Password", type="password", key="signin_password")
+def _clear_pending_password_change() -> None:
+    st.session_state.pending_auth_user = None
+    st.session_state.pending_auth_progress = None
+    st.session_state.pending_auth_email = ""
+    st.session_state.password_change_token = ""
 
-    if st.button("Sign in", type="primary", use_container_width=True):
-        if not username or not password:
-            st.error("Enter your username and password.")
-            return
-        if username.strip().lower() == "admin" and password.strip().lower() == "admin":
-            start_auth_session({
-                "username": "admin",
-                "full_name": "Admin",
-                "email": "",
-            })
-            st.session_state.page = "Dashboard"
+
+def _render_change_password() -> None:
+    pending_user = st.session_state.get("pending_auth_user") or {}
+    email = str(st.session_state.get("pending_auth_email") or "")
+    change_token = str(st.session_state.get("password_change_token") or "")
+    if not pending_user or not email or not change_token:
+        st.error("This password reset is no longer available. Request a new one.")
+        if st.button(
+            "Back to sign in",
+            key="change_password_back_to_signin",
+            icon=":material/arrow_back:",
+            type="tertiary",
+            width="stretch",
+        ):
+            _clear_pending_password_change()
+            st.session_state.auth_view = "sign_in"
             st.rerun()
-        # TODO: Authenticate user against database.
-        st.info("Sign in will be enabled when the database connection is added.")
+        return
 
-    if st.button("Forgot password?", key="forgot_password", type="secondary"):
-        st.session_state.auth_step = "forgot"
+    with st.form("change_password_form", enter_to_submit=True, border=False):
+        new_password = st.text_input(
+            "New password",
+            type="password",
+            key="new_password",
+        )
+        confirm_password = st.text_input(
+            "Confirm new password",
+            type="password",
+            key="confirm_new_password",
+        )
+        st.caption("Use at least 10 characters with uppercase, lowercase, and a number.")
+        submitted = st.form_submit_button(
+            "Update password and sign in",
+            type="primary",
+            icon=":material/lock_reset:",
+            width="stretch",
+        )
+
+    if submitted:
+        if not new_password or not confirm_password:
+            st.error("Enter and confirm your new password.")
+            return
+        if new_password != confirm_password:
+            st.error("The passwords do not match.")
+            return
+        try:
+            with st.spinner("Updating password..."):
+                change_password(email, change_token, new_password)
+        except CasApiError as exc:
+            LOGGER.warning("Password change failed: %s", exc)
+            if exc.code in {"weak_password", "password_unchanged"}:
+                st.error(str(exc))
+            else:
+                st.error("This password reset has expired. Request a new one.")
+            return
+
+        progress = st.session_state.get("pending_auth_progress")
+        start_auth_session(dict(pending_user))
+        st.session_state.admission_progress = progress
+        _clear_pending_password_change()
+        st.session_state.page = "Dashboard"
+        st.rerun()
+
+    if st.button(
+        "Back to sign in",
+        key="change_password_back_to_signin",
+        icon=":material/arrow_back:",
+        type="tertiary",
+        width="stretch",
+    ):
+        _clear_pending_password_change()
+        st.session_state.auth_view = "sign_in"
         st.rerun()
 
 
@@ -267,28 +275,18 @@ def auth_page() -> None:
     with st.container(key="auth_shell"):
         with st.container(border=True, key="auth_card"):
             _auth_header()
-            st.caption("Sign in or create an account to continue.")
+            auth_view = st.session_state.get("auth_view")
+            captions = {
+                "forgot_password": "Enter your email to receive a temporary password.",
+                "change_password": "Create a new password to finish signing in.",
+            }
+            st.caption(captions.get(auth_view, "Sign in to continue."))
             notice = st.session_state.pop("auth_notice", "")
             if notice:
                 st.success(notice)
-            if st.session_state.get("auth_step") == "verify":
-                _render_code_step()
-                return
-            if st.session_state.get("auth_step") == "forgot":
-                _render_forgot_password_request()
-                return
-            if st.session_state.get("auth_step") == "reset":
-                _render_reset_password_step()
-                return
-
-            mode = st.radio(
-                "Authentication mode",
-                ["Sign In", "Sign Up"],
-                horizontal=True,
-                label_visibility="collapsed",
-                key="auth_mode",
-            )
-            if mode == "Sign In":
-                _render_sign_in()
+            if auth_view == "forgot_password":
+                _render_forgot_password()
+            elif auth_view == "change_password":
+                _render_change_password()
             else:
-                _render_signup_form()
+                _render_student_sign_in()

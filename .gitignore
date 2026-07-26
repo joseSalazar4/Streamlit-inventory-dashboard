@@ -1,3 +1,13 @@
 .streamlit/secrets.toml
+.streamlit-python-packages/
+.env.api.local
+.env.streamlit.local
+.local/
 __pycache__/
 *.pyc
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+tmp/

@@ -9,12 +9,12 @@ import time
 from typing import Any, Dict
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 COOKIE_NAME = "cas_auth"
 COOKIE_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
 PENDING_COOKIE_KEY = "_cas_cookie_update"
+SKIP_COOKIE_RESTORE_KEY = "_cas_skip_cookie_restore"
 
 
 def _auth_settings() -> Dict[str, Any]:
@@ -38,11 +38,15 @@ def _b64_decode(value: str) -> bytes:
     return base64.urlsafe_b64decode(value + ("=" * (-len(value) % 4)))
 
 
-def _clean_user(user: Dict[str, Any]) -> Dict[str, str]:
+def _clean_user(user: Dict[str, Any]) -> Dict[str, Any]:
     return {
-        "username": str(user.get("username", "")),
+        "id": str(user.get("id") or user.get("student_id") or ""),
+        "student_id": str(user.get("student_id") or user.get("id") or ""),
+        "username": str(user.get("username") or user.get("email") or ""),
         "full_name": str(user.get("full_name", "")),
         "email": str(user.get("email", "")),
+        "user_type": "student",
+        "is_test_user": bool(user.get("is_test_user")),
     }
 
 
@@ -62,7 +66,7 @@ def _create_token(user: Dict[str, Any]) -> str:
     return f"{body}.{_sign(body)}"
 
 
-def _read_token(token: str) -> Dict[str, str] | None:
+def _read_token(token: str) -> Dict[str, Any] | None:
     try:
         body, signature = token.split(".", 1)
     except ValueError:
@@ -80,9 +84,11 @@ def _read_token(token: str) -> Dict[str, str] | None:
         return None
 
     user = payload.get("user")
-    if not isinstance(user, dict) or not user.get("username"):
+    if not isinstance(user, dict) or not user.get("email"):
         return None
-    return _clean_user(user)
+    clean_user = _clean_user(user)
+
+    return clean_user
 
 
 def _queue_cookie(cookie: str) -> None:
@@ -102,7 +108,7 @@ def render_cookie_update() -> None:
     if not cookie:
         return
 
-    components.html(
+    st.html(
         f"""
         <script>
         (function() {{
@@ -115,12 +121,13 @@ def render_cookie_update() -> None:
         }})();
         </script>
         """,
-        height=0,
-        width=0,
+        unsafe_allow_javascript=True,
     )
 
 
 def restore_auth_session() -> None:
+    if st.session_state.pop(SKIP_COOKIE_RESTORE_KEY, False):
+        return
     if st.session_state.get("authenticated_user"):
         return
 
@@ -132,7 +139,6 @@ def restore_auth_session() -> None:
     if not token:
         return
 
-    # SQL TODO: SELECT user by valid session token, expiry, and revoked=false.
     user = _read_token(token)
     if user:
         st.session_state.authenticated_user = user
@@ -147,6 +153,12 @@ def start_auth_session(user: Dict[str, Any]) -> None:
 
 
 def clear_auth_session() -> None:
-    # SQL TODO: UPDATE auth_sessions SET revoked=1 WHERE session_token_hash=...
     st.session_state.authenticated_user = None
+    st.session_state.admission_progress = None
+    st.session_state[SKIP_COOKIE_RESTORE_KEY] = True
     _queue_clear_cookie()
+
+
+def sign_out_current_user() -> None:
+    clear_auth_session()
+    st.rerun()
