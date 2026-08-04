@@ -220,6 +220,7 @@ def _merge_document(rule: FileRule, item: Dict[str, Any] | None) -> FileRule:
         document_id=str(item.get("document_id") or "") or None,
         status=str(item.get("status") or rule.status),
         file_name=str(item.get("file_name") or "") or None,
+        rejection_comment=str(item.get("rejection_comment") or "") or None,
         external_url=str(item.get("external_url") or rule.external_url or "") or None,
         template_available=item.get("template_available"),
     )

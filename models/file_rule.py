@@ -16,6 +16,6 @@ class FileRule:
     document_id: str | None = None
     status: str = "not_submitted"
     file_name: str | None = None
+    rejection_comment: str | None = None
     external_url: str | None = None
     template_available: bool | None = None
-

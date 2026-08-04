@@ -9,6 +9,7 @@ import time
 from typing import Any, Dict
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 COOKIE_NAME = "cas_auth"
@@ -108,7 +109,7 @@ def render_cookie_update() -> None:
     if not cookie:
         return
 
-    st.html(
+    components.html(
         f"""
         <script>
         (function() {{
@@ -121,7 +122,7 @@ def render_cookie_update() -> None:
         }})();
         </script>
         """,
-        unsafe_allow_javascript=True,
+        height=0,
     )
 
 

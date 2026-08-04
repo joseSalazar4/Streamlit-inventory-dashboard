@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from functools import partial
 from html import escape
 import logging
 import re
@@ -11,7 +10,6 @@ import streamlit as st
 from api.cas_api import (
     document_download_url,
     document_template_download_url,
-    download_file,
 )
 from auth.session_cookie import sign_out_current_user
 from models.file_rule import FileRule
@@ -265,13 +263,17 @@ def render_document_uploader(phase_id: str, rule: FileRule) -> None:
         )
         if status_text and not result:
             st.info(status_text, icon=":material/info:")
+            if rule.status == "needs_replacement" and rule.rejection_comment:
+                st.error(
+                    f"Correction reason: {rule.rejection_comment}",
+                    icon=":material/report:",
+                )
 
         st.file_uploader(
             f"Upload {rule.label}",
             type=list(rule.allowed_types),
             key=uploader_key(phase_id, rule.key),
             help=f"Maximum 40 MB. Allowed types: {type_label}.",
-            max_upload_size=40,
             label_visibility="collapsed",
             on_change=process_uploaded_file,
             args=(phase_id, rule),
@@ -306,20 +308,12 @@ def _download_rules(phase: Dict[str, Any]) -> list[FileRule]:
     )
 
 
-def _download_file_name(rule: FileRule) -> str:
-    if rule.file_name:
-        return rule.file_name
-    extension = "pdf" if "pdf" in rule.allowed_types else rule.allowed_types[0]
-    return f"{rule.key}.{extension}"
-
-
 def _render_download_button(phase_id: str, rule: FileRule) -> None:
     key = f"download_{phase_id}_{rule.key}"
     if rule.flow_type == "external_link_only":
         st.link_button(
             rule.label,
             rule.external_url or "https://hubspot.com",
-            key=key,
             icon=":material/open_in_new:",
             width="stretch",
         )
@@ -335,29 +329,18 @@ def _render_download_button(phase_id: str, rule: FileRule) -> None:
                 width="stretch",
             )
             return
-        st.download_button(
+        st.link_button(
             rule.label,
-            data=partial(
-                download_file,
-                document_template_download_url(rule.key, scope="global"),
-            ),
-            file_name=_download_file_name(rule),
-            mime="application/octet-stream",
-            key=key,
+            document_template_download_url(rule.key, scope="global"),
             icon=":material/download:",
-            on_click="ignore",
             width="stretch",
         )
         return
     if rule.document_id:
-        st.download_button(
+        st.link_button(
             rule.label,
-            data=partial(download_file, document_download_url(rule.document_id)),
-            file_name=_download_file_name(rule),
-            mime="application/octet-stream",
-            key=key,
+            document_download_url(rule.document_id),
             icon=":material/download:",
-            on_click="ignore",
             width="stretch",
         )
         return
@@ -377,7 +360,6 @@ def render_phase_downloads(phase: Dict[str, Any]) -> None:
         return
     with st.expander(
         "Templates",
-        key=f"phase_downloads_{phase['id']}",
         icon=":material/download:",
     ):
         st.caption("Open external forms or download files provided by CAS.")
@@ -517,7 +499,6 @@ def render_phase_uploads(phase: Dict[str, Any]) -> None:
         return
     with st.expander(
         "Files to upload",
-        key=f"phase_uploads_{phase['id']}",
         icon=":material/upload_file:",
     ):
         render_phase_submit(phase, "top")

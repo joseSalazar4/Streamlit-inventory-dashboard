@@ -5,6 +5,16 @@ download CAS templates, and submit files through the CAS API.
 
 ## Run locally
 
+Use the pinned Streamlit version from `requirements.txt`:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m streamlit version
+```
+
+The expected Streamlit version is `1.50.0`. Do not rely on a globally installed
+Streamlit from another project; small API differences can break widgets.
+
 Windows App Control may block the generated `streamlit.exe` launcher. Use the
 repository launcher instead:
 
@@ -71,7 +81,9 @@ production; the `admin/admin` shortcut is disabled by default.
 
 ## CAS API
 
-The local Streamlit environment points to `http://127.0.0.1:8081`.
+The local Streamlit environment points to `CAS_API_BASE_URL`. In the current
+local setup this is usually `http://127.0.0.1:8080`; use `8081` only when
+running a temporary API instance.
 
 The Streamlit portal never receives Dataverse or Microsoft Graph credentials.
 It targets the routes in the `djwhitee/cas-document-platform` API contract:
