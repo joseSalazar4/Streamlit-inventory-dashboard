@@ -8,8 +8,10 @@ from typing import Any, Dict, Iterable, Tuple
 import streamlit as st
 
 from api.cas_api import (
+    CasApiError,
     document_download_url,
     document_template_download_url,
+    download_file,
 )
 from auth.session_cookie import sign_out_current_user
 from models.file_rule import FileRule
@@ -329,20 +331,15 @@ def _render_download_button(phase_id: str, rule: FileRule) -> None:
                 width="stretch",
             )
             return
-        st.link_button(
+        _render_api_download_button(
             rule.label,
             document_template_download_url(rule.key, scope="global"),
-            icon=":material/download:",
-            width="stretch",
+            f"{rule.key}.pdf",
+            key,
         )
         return
     if rule.document_id:
-        st.link_button(
-            rule.label,
-            document_download_url(rule.document_id),
-            icon=":material/download:",
-            width="stretch",
-        )
+        _render_api_download_button(rule.label, document_download_url(rule.document_id), f"{rule.key}.pdf", key)
         return
     st.button(
         rule.label,
@@ -350,6 +347,30 @@ def _render_download_button(phase_id: str, rule: FileRule) -> None:
         icon=":material/download:",
         disabled=True,
         help="This file is not available yet.",
+        width="stretch",
+    )
+
+
+def _render_api_download_button(label: str, url: str, file_name: str, key: str) -> None:
+    try:
+        content = download_file(url)
+    except CasApiError as exc:
+        st.button(
+            label,
+            key=key,
+            icon=":material/download:",
+            disabled=True,
+            help=str(exc),
+            width="stretch",
+        )
+        return
+    st.download_button(
+        label,
+        data=content,
+        file_name=file_name,
+        mime="application/octet-stream",
+        key=key,
+        icon=":material/download:",
         width="stretch",
     )
 
@@ -465,10 +486,10 @@ def render_phase_header(
                 <div class="phase-head">
                     <div class="phase-left">
                         <div class="phase-badge">
-                            <span class="material-symbols-rounded">{phase["icon"]}</span>
+                            <span class="material-symbols-rounded">{escape(str(phase["icon"]))}</span>
                         </div>
                         <div>
-                            <p class="phase-title">{phase["number"]}. {escape(str(phase["title"]))}</p>
+                            <p class="phase-title">{escape(str(phase["number"]))}. {escape(str(phase["title"]))}</p>
                             <p class="phase-desc">{escape(str(phase["subtitle"]))}</p>
                         </div>
                     </div>

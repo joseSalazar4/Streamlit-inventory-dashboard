@@ -42,6 +42,25 @@ def api_base_url() -> str:
     return os.getenv("CAS_API_BASE_URL", "http://127.0.0.1:8080").rstrip("/")
 
 
+def _auth_headers() -> Dict[str, str]:
+    token = os.getenv("CAS_API_AUTH_TOKEN", "").strip()
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    user_token = _current_user_token()
+    if user_token:
+        headers["X-CAS-User-Token"] = user_token
+    return headers
+
+
+def _current_user_token() -> str:
+    try:
+        import streamlit as st
+
+        user = st.session_state.get("authenticated_user") or {}
+        return str(user.get("api_user_token") or st.session_state.get("api_user_token") or "").strip()
+    except Exception:
+        return ""
+
+
 def authenticate_student(email: str, password: str) -> Dict[str, Any]:
     return _request_json(
         "POST",
@@ -181,7 +200,7 @@ def document_template_download_url(document_type_id: str, scope: str = "global")
 def download_file(url: str) -> bytes:
     api_request = request.Request(
         url,
-        headers={"Accept": "application/octet-stream"},
+        headers={"Accept": "application/octet-stream", **_auth_headers()},
         method="GET",
     )
     try:
@@ -200,7 +219,7 @@ def _request_json(
     payload: Mapping[str, Any] | None = None,
 ) -> Dict[str, Any]:
     data = None if payload is None else json.dumps(dict(payload)).encode("utf-8")
-    headers = {"Accept": "application/json"}
+    headers = {"Accept": "application/json", **_auth_headers()}
     if data is not None:
         headers["Content-Type"] = "application/json"
     api_request = request.Request(
@@ -255,6 +274,7 @@ def _post_multipart(
         data=body,
         headers={
             "Accept": "application/json",
+            **_auth_headers(),
             "Content-Type": f"multipart/form-data; boundary={boundary}",
             "Content-Length": str(len(body)),
         },

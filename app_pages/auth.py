@@ -69,6 +69,9 @@ def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict
         return user, progress
 
     payload = authenticate_student(email, password)
+    api_user_token = str(payload.get("api_user_token") or "")
+    if api_user_token:
+        st.session_state.api_user_token = api_user_token
     api_user = payload.get("user") or {}
     if str(api_user.get("user_type") or "").lower() != "student":
         raise CasApiError("This portal is available to students only.")
@@ -89,6 +92,7 @@ def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict
         "full_name": str(student.get("full_name") or matched_email),
         "user_type": "student",
         "is_test_user": False,
+        "api_user_token": api_user_token,
         "password_change_required": bool(api_user.get("password_change_required")),
         "password_change_token": str(payload.get("password_change_token") or ""),
     }
@@ -139,6 +143,7 @@ def _render_student_sign_in() -> None:
             st.rerun()
 
         start_auth_session(user)
+        st.session_state.pop("api_user_token", None)
         st.session_state.admission_progress = progress
         st.session_state.page = "Dashboard"
         st.rerun()
@@ -254,6 +259,7 @@ def _render_change_password() -> None:
 
         progress = st.session_state.get("pending_auth_progress")
         start_auth_session(dict(pending_user))
+        st.session_state.pop("api_user_token", None)
         st.session_state.admission_progress = progress
         _clear_pending_password_change()
         st.session_state.page = "Dashboard"

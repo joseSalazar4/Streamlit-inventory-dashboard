@@ -48,6 +48,7 @@ def _clean_user(user: Dict[str, Any]) -> Dict[str, Any]:
         "email": str(user.get("email", "")),
         "user_type": "student",
         "is_test_user": bool(user.get("is_test_user")),
+        "api_user_token": str(user.get("api_user_token", "")),
     }
 
 
