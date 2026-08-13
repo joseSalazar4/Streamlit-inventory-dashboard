@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import json
 import mimetypes
 import os
 import socket
+import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -42,6 +46,32 @@ def api_base_url() -> str:
     return os.getenv("CAS_API_BASE_URL", "http://127.0.0.1:8080").rstrip("/")
 
 
+def create_local_student_user_token(user: Mapping[str, Any]) -> str:
+    secret = (
+        os.getenv("CAS_API_USER_TOKEN_SECRET", "").strip()
+        or os.getenv("CAS_API_AUTH_TOKEN", "").strip()
+    )
+    if not secret:
+        return ""
+    now = int(time.time())
+    clean_user = {
+        "user_type": "student",
+        "role": "student",
+        "email": str(user.get("email") or user.get("username") or "").strip().lower(),
+        "student_id": str(user.get("student_id") or user.get("id") or "").strip(),
+        "opti_id_usuario": str(user.get("opti_id_usuario") or user.get("username") or user.get("email") or "").strip(),
+        "full_name": str(user.get("full_name") or "").strip(),
+    }
+    payload = {
+        "exp": now + 12 * 60 * 60,
+        "iat": now,
+        "user": clean_user,
+    }
+    body = _b64_encode(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8"))
+    signature = _b64_encode(hmac.new(secret.encode("utf-8"), body.encode("utf-8"), hashlib.sha256).digest())
+    return f"{body}.{signature}"
+
+
 def _auth_headers() -> Dict[str, str]:
     token = os.getenv("CAS_API_AUTH_TOKEN", "").strip()
     headers = {"Authorization": f"Bearer {token}"} if token else {}
@@ -56,9 +86,31 @@ def _current_user_token() -> str:
         import streamlit as st
 
         user = st.session_state.get("authenticated_user") or {}
-        return str(user.get("api_user_token") or st.session_state.get("api_user_token") or "").strip()
+        token = str(user.get("api_user_token") or st.session_state.get("api_user_token") or "").strip()
+        if token:
+            return token
     except Exception:
+        pass
+    return _local_test_user_token()
+
+
+def _local_test_user_token() -> str:
+    student_id = os.getenv("CAS_TEST_STUDENT_ID", "").strip()
+    if not student_id:
         return ""
+    return create_local_student_user_token(
+        {
+            "id": student_id,
+            "student_id": student_id,
+            "username": "admin",
+            "email": "admin@local.test",
+            "full_name": os.getenv("CAS_TEST_STUDENT_NAME", "Test Student").strip() or "Test Student",
+        }
+    )
+
+
+def _b64_encode(raw: bytes) -> str:
+    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
 
 def authenticate_student(email: str, password: str) -> Dict[str, Any]:

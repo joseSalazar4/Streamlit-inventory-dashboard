@@ -10,6 +10,7 @@ from api.cas_api import (
     CasApiError,
     authenticate_student,
     change_password,
+    create_local_student_user_token,
     get_admission_progress,
     request_password_reset,
 )
@@ -62,6 +63,10 @@ def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict
         and password == TEST_PASSWORD
     ):
         user = _test_student()
+        api_user_token = create_local_student_user_token(user)
+        if api_user_token:
+            st.session_state.api_user_token = api_user_token
+            user["api_user_token"] = api_user_token
         try:
             progress = get_admission_progress(user["student_id"])
         except CasApiError:
