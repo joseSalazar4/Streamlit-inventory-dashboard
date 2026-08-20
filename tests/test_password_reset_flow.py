@@ -20,6 +20,7 @@ if UPSTREAM_API_AVAILABLE:
     from local_api.portal_auth import (
         AuthFlowError,
         PasswordResetService,
+        ResendPasswordMailer,
         hash_password,
         verify_password,
     )
@@ -118,6 +119,33 @@ class FakeRouteService:
 class PasswordResetFlowTests(unittest.TestCase):
     def _email(self) -> str:
         return f"student-{uuid.uuid4().hex}@example.test"
+
+    def test_resend_request_uses_verified_sender_and_user_agent(self) -> None:
+        mailer = ResendPasswordMailer(
+            api_key="re_test",
+            from_email="CAS Document Portal <notifications@cas.cr>",
+            portal_url="https://portal.cas.cr",
+        )
+
+        with patch("local_api.portal_auth.request.urlopen") as mocked_urlopen:
+            mocked_urlopen.return_value.__enter__.return_value.status = 200
+            mailer.send_temporary_password(
+                "student@example.com",
+                "Temporary1",
+                "Ana Student",
+            )
+
+        sent_request = mocked_urlopen.call_args.args[0]
+        payload = json.loads(sent_request.data.decode("utf-8"))
+        self.assertEqual(
+            payload["from"],
+            "CAS Document Portal <notifications@cas.cr>",
+        )
+        self.assertEqual(payload["to"], ["student@example.com"])
+        self.assertEqual(
+            sent_request.get_header("User-agent"),
+            "cas-document-portal/1.0",
+        )
 
     def test_reset_stores_only_a_temporary_hash_and_sends_password(self) -> None:
         email = self._email()

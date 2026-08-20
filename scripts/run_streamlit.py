@@ -30,12 +30,14 @@ def ensure_dependencies(repo_root: Path, deps_dir: Path) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=8501)
-    args = parser.parse_args()
-
     repo_root = Path(__file__).resolve().parents[1]
     load_env_file(repo_root / ".env.streamlit.local")
+    is_local = os.getenv("CAS_ENVIRONMENT", "prod").strip().lower() == "local"
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, default=8502 if is_local else 8501)
+    args = parser.parse_args()
+
     deps_dir = repo_root / ".streamlit-python-packages"
     ensure_dependencies(repo_root, deps_dir)
 
@@ -44,7 +46,7 @@ def main() -> int:
     os.environ["PYTHONPATH"] = os.pathsep.join(
         [str(deps_dir), str(repo_root), os.environ.get("PYTHONPATH", "")]
     )
-    os.environ.setdefault("STREAMLIT_GLOBAL_DEVELOPMENT_MODE", "false")
+    os.environ["STREAMLIT_GLOBAL_DEVELOPMENT_MODE"] = "false"
 
     from streamlit.web import cli as streamlit_cli
 
@@ -55,6 +57,8 @@ def main() -> int:
         "--server.port",
         str(args.port),
     ]
+    if is_local:
+        sys.argv.extend(["--server.address", "127.0.0.1"])
     return int(streamlit_cli.main() or 0)
 
 

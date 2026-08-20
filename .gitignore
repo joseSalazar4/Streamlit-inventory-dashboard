@@ -11,3 +11,6 @@ __pycache__/
 *.db-shm
 *.db-wal
 tmp/
+
+# Private generated setup guide containing live local credentials.
+/output/pdf/CAS_environment_setup_private.pdf

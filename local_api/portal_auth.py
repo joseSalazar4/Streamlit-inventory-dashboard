@@ -321,6 +321,7 @@ class ResendPasswordMailer:
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
                 "Idempotency-Key": f"password-reset-{uuid.uuid4().hex}",
+                "User-Agent": "cas-document-portal/1.0",
             },
             method="POST",
         )

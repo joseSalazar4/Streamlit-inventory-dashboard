@@ -34,11 +34,8 @@ To use another port:
 .\scripts\run_streamlit.cmd --port 8514
 ```
 
-The app binds to all local network interfaces. From a phone on the same Wi-Fi,
-open `http://<computer-ip>:8501`. Find the computer's IPv4 address with
-`ipconfig`. If the local URL works but the phone cannot connect, allow the
-bundled Python process or the selected TCP port through Windows Firewall on
-Private networks.
+With `CAS_ENVIRONMENT=local`, the launcher uses `http://127.0.0.1:8502` and
+does not expose the app to the local network.
 
 Local values are loaded from two files that are ignored by Git:
 
@@ -48,7 +45,8 @@ Local values are loaded from two files that are ignored by Git:
 ```
 
 Use `.env.api.example` and `.env.streamlit.example` as the safe templates.
-The student portal only needs `CAS_API_BASE_URL` and `AUTH_COOKIE_SECRET`.
+The student portal uses `CAS_ENVIRONMENT=local` for local defaults and otherwise
+reads `CAS_API_BASE_URL`. It also needs `AUTH_COOKIE_SECRET`.
 Microsoft OAuth variables belong to the collaborator portal and are not loaded.
 
 ## Authentication
@@ -81,9 +79,8 @@ production; the `admin/admin` shortcut is disabled by default.
 
 ## CAS API
 
-The local Streamlit environment points to `CAS_API_BASE_URL`. In the current
-local setup this is usually `http://127.0.0.1:8080`; use `8081` only when
-running a temporary API instance.
+With `CAS_ENVIRONMENT=local`, the portal points to `http://127.0.0.1:8081`.
+Production reads `CAS_API_BASE_URL`.
 
 The Streamlit portal never receives Dataverse or Microsoft Graph credentials.
 It targets the routes in the `djwhitee/cas-document-platform` API contract:
@@ -116,13 +113,15 @@ Configure email delivery in `.env.api.local`:
 ```text
 CAS_API_PASSWORD_RESET_SECRET=<long random server-side secret>
 RESEND_API_KEY=re_xxxxxxxxx
-RESEND_FROM_EMAIL=CAS Document Portal <noreply@updates.yourdomain.com>
+RESEND_FROM_EMAIL=CAS Document Portal <notifications@cas.cr>
 CAS_PORTAL_URL=https://portal.yourdomain.com
 ```
 
-The sending address must use a domain verified in Resend. The reset endpoint
-stays unavailable until all four settings are present, preventing a password
-from being replaced when no email can be delivered.
+Create a Resend sending-access API key restricted to the verified `cas.cr`
+domain. Keep that key in the API service environment, never in Streamlit
+secrets or browser-facing code. The reset endpoint stays unavailable until all
+four settings are present, preventing a password from being replaced when no
+email can be delivered.
 
 Student uploads use the student-specific route first and fall back to the
 resource-oriented `/documents/upload` route for API contract compatibility.
