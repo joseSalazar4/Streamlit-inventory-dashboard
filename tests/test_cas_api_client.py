@@ -10,6 +10,7 @@ from api.cas_api import (
     CasApiError,
     StudentFileUpload,
     _api_error,
+    authenticate_local_student,
     authenticate_student,
     change_password,
     document_download_url,
@@ -46,20 +47,42 @@ class CasApiClientTests(unittest.TestCase):
 
     @patch.dict("os.environ", {"CAS_TEST_STUDENT_ID": "EST-TEST"}, clear=False)
     @patch("app_pages.auth.authenticate_student")
+    @patch("app_pages.auth.authenticate_local_student")
     @patch("app_pages.auth.get_admission_progress")
     def test_test_login_requires_an_explicit_student(
         self,
         get_progress: Mock,
+        authenticate_local: Mock,
         authenticate: Mock,
     ) -> None:
         get_progress.return_value = {"student": {"student_id": "EST-TEST"}}
+        authenticate_local.return_value = {
+            "user": {
+                "student_id": "EST-TEST",
+                "email": "admin@local.test",
+                "user_type": "student",
+            },
+            "api_user_token": "signed-by-api",
+        }
 
         user, progress = _student_from_login("admin", "admin")
 
         self.assertEqual(user["student_id"], "EST-TEST")
         self.assertTrue(user["is_test_user"])
         self.assertEqual(progress, get_progress.return_value)
+        authenticate_local.assert_called_once_with("EST-TEST")
         authenticate.assert_not_called()
+
+    @patch.dict("os.environ", {"CAS_API_BASE_URL": "http://api.test"}, clear=False)
+    @patch("api.cas_api.request.urlopen")
+    def test_local_student_access_is_delegated_to_api(self, urlopen: Mock) -> None:
+        urlopen.return_value = response({"api_user_token": "signed-by-api"})
+
+        authenticate_local_student("EST-TEST")
+
+        sent = urlopen.call_args.args[0]
+        self.assertEqual(sent.full_url, "http://api.test/auth/local-student")
+        self.assertEqual(json.loads(sent.data), {"student_id": "EST-TEST"})
 
     @patch.dict("os.environ", {"CAS_API_BASE_URL": "http://api.test"}, clear=False)
     @patch("api.cas_api.request.urlopen")
@@ -102,6 +125,20 @@ class CasApiClientTests(unittest.TestCase):
                 "new_password": "NewPassword1",
             },
         )
+
+    @patch.dict("os.environ", {"CAS_API_BASE_URL": "http://api.test"}, clear=False)
+    @patch("api.cas_api.request.urlopen")
+    def test_invalid_success_response_becomes_safe_api_error(self, urlopen: Mock) -> None:
+        invalid_response = response({})
+        invalid_response.read.return_value = b"<html>proxy error</html>"
+        urlopen.return_value = invalid_response
+
+        with self.assertRaises(CasApiError) as raised:
+            request_password_reset("student@example.com")
+
+        self.assertEqual(raised.exception.code, "invalid_api_response")
+        self.assertEqual(raised.exception.status, 502)
+        self.assertNotIn("proxy error", str(raised.exception))
 
     @patch.dict("os.environ", {"CAS_API_BASE_URL": "http://api.test"}, clear=False)
     @patch("api.cas_api.request.urlopen")

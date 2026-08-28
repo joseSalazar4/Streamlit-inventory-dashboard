@@ -8,9 +8,9 @@ import streamlit as st
 
 from api.cas_api import (
     CasApiError,
+    authenticate_local_student,
     authenticate_student,
     change_password,
-    create_local_student_user_token,
     get_admission_progress,
     request_password_reset,
 )
@@ -42,19 +42,6 @@ def _auth_header() -> None:
     )
 
 
-def _test_student() -> Dict[str, Any]:
-    student_id = os.environ.get("CAS_TEST_STUDENT_ID", "").strip()
-    return {
-        "id": student_id,
-        "student_id": student_id,
-        "username": TEST_USERNAME,
-        "email": "admin@local.test",
-        "full_name": os.environ.get("CAS_TEST_STUDENT_NAME", "Test Student").strip() or "Test Student",
-        "user_type": "student",
-        "is_test_user": True,
-    }
-
-
 def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict[str, Any] | None]:
     test_student_id = os.environ.get("CAS_TEST_STUDENT_ID", "").strip()
     if (
@@ -62,11 +49,22 @@ def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict
         and email.strip().lower() == TEST_USERNAME
         and password == TEST_PASSWORD
     ):
-        user = _test_student()
-        api_user_token = create_local_student_user_token(user)
+        payload = authenticate_local_student(test_student_id)
+        user = dict(payload.get("user") or {})
+        api_user_token = str(payload.get("api_user_token") or "")
         if api_user_token:
             st.session_state.api_user_token = api_user_token
             user["api_user_token"] = api_user_token
+        user.setdefault("id", test_student_id)
+        user.setdefault("student_id", test_student_id)
+        user.setdefault("username", TEST_USERNAME)
+        user.setdefault("email", "admin@local.test")
+        user.setdefault(
+            "full_name",
+            os.environ.get("CAS_TEST_STUDENT_NAME", "Test Student").strip()
+            or "Test Student",
+        )
+        user["is_test_user"] = True
         try:
             progress = get_admission_progress(user["student_id"])
         except CasApiError:
@@ -122,6 +120,7 @@ def _render_student_sign_in() -> None:
         try:
             with st.spinner("Signing in..."):
                 user, progress = _student_from_login(email, password)
+            user, password_change = _password_change_redirect(user, progress, email)
         except CasApiError as exc:
             LOGGER.warning("Student sign-in failed: %s", exc)
             if exc.code == "temporary_password_expired":
@@ -134,24 +133,21 @@ def _render_student_sign_in() -> None:
                 st.error("We couldn't sign you in right now. Please try again.")
             return
 
-        password_change_required = bool(user.pop("password_change_required", False))
-        password_change_token = str(user.pop("password_change_token", ""))
-        if password_change_required:
-            if not password_change_token:
-                st.error("Password reset could not be completed. Request a new reset.")
-                return
-            st.session_state.pending_auth_user = user
-            st.session_state.pending_auth_progress = progress
-            st.session_state.pending_auth_email = str(user.get("email") or email).strip().lower()
-            st.session_state.password_change_token = password_change_token
+        if password_change:
+            st.session_state.pending_auth_user = password_change["user"]
+            st.session_state.pending_auth_progress = password_change["progress"]
+            st.session_state.pending_auth_email = password_change["email"]
+            st.session_state.password_change_token = password_change["token"]
             st.session_state.auth_view = "change_password"
             st.rerun()
+            return
 
         start_auth_session(user)
         st.session_state.pop("api_user_token", None)
         st.session_state.admission_progress = progress
         st.session_state.page = "Dashboard"
         st.rerun()
+        return
 
     if st.button(
         "Forgot password?",
@@ -161,6 +157,26 @@ def _render_student_sign_in() -> None:
     ):
         st.session_state.auth_view = "forgot_password"
         st.rerun()
+
+
+def _password_change_redirect(
+    user: Dict[str, Any],
+    progress: Dict[str, Any] | None,
+    submitted_email: str,
+) -> tuple[Dict[str, Any], Dict[str, Any] | None]:
+    authenticated_user = dict(user)
+    password_change_required = bool(authenticated_user.pop("password_change_required", False))
+    password_change_token = str(authenticated_user.pop("password_change_token", ""))
+    if not password_change_required:
+        return authenticated_user, None
+    if not password_change_token:
+        raise CasApiError("Password reset could not be completed. Request a new reset.")
+    return authenticated_user, {
+        "user": authenticated_user,
+        "progress": progress,
+        "email": str(authenticated_user.get("email") or submitted_email).strip().lower(),
+        "token": password_change_token,
+    }
 
 
 def _render_forgot_password() -> None:

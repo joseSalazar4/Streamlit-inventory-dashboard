@@ -9,10 +9,9 @@ import time
 from typing import Any, Dict
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
-COOKIE_NAME = "cas_auth"
+COOKIE_NAME = "cas_student_auth"
 COOKIE_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
 PENDING_COOKIE_KEY = "_cas_cookie_update"
 SKIP_COOKIE_RESTORE_KEY = "_cas_skip_cookie_restore"
@@ -98,11 +97,18 @@ def _queue_cookie(cookie: str) -> None:
 
 
 def _queue_set_cookie(token: str) -> None:
-    _queue_cookie(f"{COOKIE_NAME}={token}; Max-Age={COOKIE_MAX_AGE_SECONDS}; Path=/; SameSite=Lax")
+    _queue_cookie(
+        f"{COOKIE_NAME}={token}; Max-Age={COOKIE_MAX_AGE_SECONDS}; "
+        f"Path=/; SameSite=Lax{_secure_cookie_suffix()}"
+    )
 
 
 def _queue_clear_cookie() -> None:
-    _queue_cookie(f"{COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax")
+    _queue_cookie(f"{COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax{_secure_cookie_suffix()}")
+
+
+def _secure_cookie_suffix() -> str:
+    return "" if os.getenv("CAS_ENVIRONMENT", "prod").strip().lower() == "local" else "; Secure"
 
 
 def render_cookie_update() -> None:
@@ -110,7 +116,7 @@ def render_cookie_update() -> None:
     if not cookie:
         return
 
-    components.html(
+    st.html(
         f"""
         <script>
         (function() {{
@@ -123,7 +129,7 @@ def render_cookie_update() -> None:
         }})();
         </script>
         """,
-        height=0,
+        unsafe_allow_javascript=True,
     )
 
 

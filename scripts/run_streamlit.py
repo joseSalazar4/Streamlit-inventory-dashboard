@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from importlib import metadata
 import os
 import subprocess
 import sys
@@ -10,10 +11,26 @@ from local_env import load_env_file
 
 
 def ensure_dependencies(repo_root: Path, deps_dir: Path) -> None:
-    if deps_dir.exists():
+    requirements = repo_root / "requirements.txt"
+    expected_versions = {}
+    for raw_line in requirements.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "==" not in line:
+            continue
+        package, version = line.split("==", 1)
+        expected_versions[package.strip().lower().replace("_", "-")] = version.strip()
+
+    installed_versions = {
+        distribution.metadata["Name"].lower().replace("_", "-"): distribution.version
+        for distribution in metadata.distributions(path=[str(deps_dir)])
+        if distribution.metadata.get("Name")
+    }
+    if deps_dir.exists() and all(
+        installed_versions.get(package) == version for package, version in expected_versions.items()
+    ):
         return
 
-    requirements = repo_root / "requirements.txt"
+    deps_dir.mkdir(parents=True, exist_ok=True)
     print(f"Installing Python dependencies into {deps_dir} ...", flush=True)
     subprocess.check_call(
         [
@@ -21,6 +38,7 @@ def ensure_dependencies(repo_root: Path, deps_dir: Path) -> None:
             "-m",
             "pip",
             "install",
+            "--upgrade",
             "--target",
             str(deps_dir),
             "-r",
