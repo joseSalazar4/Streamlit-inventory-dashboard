@@ -39,9 +39,12 @@ class StudentFileUploadOutcome:
 
 
 def api_base_url() -> str:
+    configured_url = os.getenv("CAS_API_BASE_URL", "").strip()
+    if configured_url:
+        return configured_url.rstrip("/")
     if os.getenv("CAS_ENVIRONMENT", "prod").strip().lower() == "local":
         return "http://127.0.0.1:8081"
-    return os.getenv("CAS_API_BASE_URL", "http://127.0.0.1:8080").rstrip("/")
+    return "http://127.0.0.1:8080"
 
 
 def _auth_headers() -> Dict[str, str]:

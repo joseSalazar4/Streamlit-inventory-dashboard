@@ -1,0 +1,51 @@
+name: cas-platform
+
+services:
+  api:
+    build:
+      context: ../cas-api
+    env_file:
+      - ../cas-api/.env.api.local
+    environment:
+      CAS_ENVIRONMENT: prod
+      CAS_API_HOST: 0.0.0.0
+      CAS_API_PORT: "8080"
+      CAS_PORTAL_URL: http://localhost:8502
+    ports:
+      - "8081:8080"
+
+  collaborators:
+    build:
+      context: ./.local/cas-document-platform/cas-collaborator-platform
+    env_file:
+      - ./.local/cas-document-platform/cas-collaborator-platform/.env.local
+    environment:
+      CAS_ENVIRONMENT: local
+      CAS_API_BASE_URL: http://api:8080
+      CAS_MICROSOFT_REDIRECT_URI: http://localhost:8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+      STREAMLIT_SERVER_PORT: "8501"
+      STREAMLIT_SERVER_HEADLESS: "true"
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+
+  students:
+    build:
+      context: .
+    env_file:
+      - ./.env.streamlit.local
+    environment:
+      CAS_ENVIRONMENT: local
+      CAS_API_BASE_URL: http://api:8080
+      CAS_TEST_STUDENT_ID: ""
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+      STREAMLIT_SERVER_PORT: "8501"
+      STREAMLIT_SERVER_HEADLESS: "true"
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8502:8501"

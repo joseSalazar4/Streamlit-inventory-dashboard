@@ -10,6 +10,7 @@ from api.cas_api import (
     CasApiError,
     StudentFileUpload,
     _api_error,
+    api_base_url,
     authenticate_local_student,
     authenticate_student,
     change_password,
@@ -32,6 +33,14 @@ def response(payload: dict) -> Mock:
 
 
 class CasApiClientTests(unittest.TestCase):
+    @patch.dict(
+        "os.environ",
+        {"CAS_ENVIRONMENT": "local", "CAS_API_BASE_URL": "http://api:8080/"},
+        clear=False,
+    )
+    def test_explicit_api_url_wins_in_local_containers(self) -> None:
+        self.assertEqual(api_base_url(), "http://api:8080")
+
     @patch.dict("os.environ", {"CAS_TEST_STUDENT_ID": ""}, clear=False)
     @patch("app_pages.auth.authenticate_student")
     def test_test_login_is_disabled_without_an_explicit_student(

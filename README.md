@@ -198,24 +198,39 @@ python3 -m streamlit version
 The expected Streamlit version is `1.60.0`. Do not rely on a globally installed
 Streamlit from another project; small API differences can break widgets.
 
-Run CAS API from its own repository in terminal 1:
+Run CAS API from its own repository in terminal 1. Its launcher loads
+`.env.api.local` automatically:
 
 ```powershell
 cd ..\cas-api
-python -m cas_api.server
+.\run-local.cmd
 ```
 
-Run only this student portal from this repository in terminal 2. Windows App
-Control may block the generated `streamlit.exe`, so use the repository launcher:
+Run only this student portal from this repository in terminal 2. Its launcher
+loads `.env.streamlit.local`, verifies the pinned dependencies, and selects port
+`8502`:
 
 ```powershell
-.\scripts\run_streamlit.cmd
+.\run-local.cmd
 ```
 
 To use another port:
 
 ```powershell
-.\scripts\run_streamlit.cmd --port 8514
+.\run-local.cmd --port 8514
+```
+
+To build and start API, collaborators, and students together with Docker:
+
+```powershell
+.\run-local-stack.cmd
+```
+
+The stack uses `compose.yaml`, exposes ports `8081`, `8501`, and `8502`, and
+keeps all secrets in the ignored local environment files. Stop it with:
+
+```powershell
+docker compose down
 ```
 
 With `CAS_ENVIRONMENT=local`, the launcher uses `http://127.0.0.1:8502` and
