@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Tuple
 
 
@@ -32,7 +33,7 @@ def validate_file(file_name: str, data: bytes) -> Tuple[bool, str]:
         if not normalized.startswith(b"%PDF") or b"%%EOF" not in data[-2048:]:
             return False, "This does not appear to be a valid PDF."
         lowered = data.lower()
-        if any(marker in lowered for marker in DANGEROUS_PDF_MARKERS):
+        if any(_contains_pdf_name(lowered, marker) for marker in DANGEROUS_PDF_MARKERS):
             return False, "This PDF contains unsupported content. Please choose a different file."
     if extension in {"jpg", "jpeg"}:
         if not data.startswith(b"\xff\xd8\xff") or not data.rstrip().endswith(b"\xff\xd9"):
@@ -41,3 +42,8 @@ def validate_file(file_name: str, data: bytes) -> Tuple[bool, str]:
         if not data.startswith(b"\x89PNG\r\n\x1a\n") or b"IEND\xaeB`\x82" not in data[-64:]:
             return False, "This does not appear to be a valid PNG image."
     return True, "File selected."
+
+
+def _contains_pdf_name(data: bytes, name: bytes) -> bool:
+    delimiter = rb"(?=[\x00\t\n\f\r /<>\[\]\(\){}%])"
+    return re.search(re.escape(name.lower()) + delimiter, data) is not None

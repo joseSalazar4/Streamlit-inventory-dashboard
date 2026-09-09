@@ -159,6 +159,7 @@ class CasApiClientTests(unittest.TestCase):
             "signed.pdf",
             b"%PDF-1.7",
             "application/pdf",
+            user_token="signed-by-api",
         )
         sent = urlopen.call_args.args[0]
 
@@ -166,6 +167,7 @@ class CasApiClientTests(unittest.TestCase):
             sent.full_url,
             "http://api.test/students/EST-1/documents/agbs/student-file",
         )
+        self.assertEqual(sent.get_header("X-cas-user-token"), "signed-by-api")
         self.assertIn(b'filename="signed.pdf"', sent.data)
         self.assertIn(b"%PDF-1.7", sent.data)
         self.assertEqual(payload["version"], 2)

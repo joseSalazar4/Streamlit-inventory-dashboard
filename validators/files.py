@@ -82,6 +82,7 @@ def submit_uploaded_files(
 ) -> Dict[Tuple[str, str], Dict[str, Any]]:
     user = st.session_state.get("authenticated_user") or {}
     student_id = str(user.get("student_id") or "").strip()
+    user_token = str(user.get("api_user_token") or st.session_state.get("api_user_token") or "").strip()
     if not student_id:
         raise ValueError("Your account is missing required information. Contact support.")
 
@@ -110,7 +111,7 @@ def submit_uploaded_files(
             )
         )
 
-    outcomes = upload_student_files([upload for _, upload in prepared])
+    outcomes = upload_student_files([upload for _, upload in prepared], user_token=user_token)
     saved_any = False
     for (result_key, _), outcome in zip(prepared, outcomes):
         result = results[result_key]

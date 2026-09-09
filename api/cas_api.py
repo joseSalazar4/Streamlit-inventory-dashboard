@@ -47,10 +47,10 @@ def api_base_url() -> str:
     return "http://127.0.0.1:8080"
 
 
-def _auth_headers() -> Dict[str, str]:
+def _auth_headers(user_token: str = "") -> Dict[str, str]:
     token = os.getenv("CAS_API_AUTH_TOKEN", "").strip()
     headers = {"Authorization": f"Bearer {token}"} if token else {}
-    user_token = _current_user_token()
+    user_token = user_token.strip() or _current_user_token()
     if user_token:
         headers["X-CAS-User-Token"] = user_token
     return headers
@@ -130,6 +130,7 @@ def upload_student_file(
     file_name: str,
     content: bytes,
     content_type: str = "application/octet-stream",
+    user_token: str = "",
 ) -> Dict[str, Any]:
     student = parse.quote(str(student_id), safe="")
     document_type = parse.quote(document_type_id, safe="")
@@ -140,6 +141,7 @@ def upload_student_file(
             file_name=file_name,
             content=content,
             content_type=content_type,
+            user_token=user_token,
         )
     except CasApiError as exc:
         if exc.status != 404:
@@ -155,11 +157,13 @@ def upload_student_file(
         file_name=file_name,
         content=content,
         content_type=content_type,
+        user_token=user_token,
     )
 
 
 def upload_student_files(
     uploads: list[StudentFileUpload],
+    user_token: str = "",
 ) -> list[StudentFileUploadOutcome]:
     """Upload each file in its own worker thread and preserve input order."""
     if not uploads:
@@ -178,6 +182,7 @@ def upload_student_files(
                 file_name=upload.file_name,
                 content=upload.content,
                 content_type=upload.content_type,
+                user_token=user_token,
             ): (index, upload)
             for index, upload in enumerate(uploads)
         }
@@ -260,6 +265,7 @@ def _post_multipart(
     file_name: str,
     content: bytes,
     content_type: str,
+    user_token: str = "",
 ) -> Dict[str, Any]:
     boundary = f"----cas-{uuid.uuid4().hex}"
     chunks: list[bytes] = []
@@ -289,7 +295,7 @@ def _post_multipart(
         data=body,
         headers={
             "Accept": "application/json",
-            **_auth_headers(),
+            **_auth_headers(user_token),
             "Content-Type": f"multipart/form-data; boundary={boundary}",
             "Content-Length": str(len(body)),
         },

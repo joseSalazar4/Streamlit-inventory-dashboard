@@ -57,7 +57,7 @@ class BatchSubmissionTests(unittest.TestCase):
             b"%PDF-1.7\n%%EOF",
         )
         state = FakeSessionState(
-            authenticated_user={"student_id": "EST-1"},
+            authenticated_user={"student_id": "EST-1", "api_user_token": "signed-by-api"},
             validation={
                 first_key: {"ok": True, "storage_status": "ready_to_submit"},
                 second_key: {"ok": True, "storage_status": "ready_to_submit"},
@@ -103,6 +103,7 @@ class BatchSubmissionTests(unittest.TestCase):
 
         upload_batch.assert_called_once()
         self.assertEqual(len(upload_batch.call_args.args[0]), 2)
+        self.assertEqual(upload_batch.call_args.kwargs["user_token"], "signed-by-api")
         refresh_progress.assert_called_once_with("EST-1")
         self.assertEqual(results[first_key]["storage_status"], "saved")
         self.assertEqual(results[second_key]["storage_status"], "ready_to_submit")
