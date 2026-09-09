@@ -4,8 +4,8 @@ import re
 from typing import Tuple
 
 
-ALLOWED_FILE_TYPES = ("pdf", "jpg", "jpeg", "png")
-MAX_FILE_SIZE_BYTES = 40 * 1024 * 1024
+ALLOWED_FILE_TYPES = ("pdf", "doc", "docx", "jpg", "jpeg", "png", "mp4", "mov")
+MAX_FILE_SIZE_BYTES = 200 * 1024 * 1024
 DANGEROUS_PDF_MARKERS = (
     b"/javascript",
     b"/js",
@@ -23,11 +23,11 @@ def safe_ext(name: str) -> str:
 def validate_file(file_name: str, data: bytes) -> Tuple[bool, str]:
     extension = safe_ext(file_name)
     if extension not in ALLOWED_FILE_TYPES:
-        return False, "Only PDF, JPG, JPEG, and PNG files are allowed."
+        return False, "Only PDF, Word, JPG, JPEG, PNG, MP4, and MOV files are allowed."
     if not data:
         return False, "The file is empty."
     if len(data) > MAX_FILE_SIZE_BYTES:
-        return False, "The file is too large. The maximum size is 40 MB."
+        return False, "The file is too large. The maximum size is 200 MB."
     if extension == "pdf":
         normalized = data.lstrip()
         if not normalized.startswith(b"%PDF") or b"%%EOF" not in data[-2048:]:
@@ -41,6 +41,15 @@ def validate_file(file_name: str, data: bytes) -> Tuple[bool, str]:
     if extension == "png":
         if not data.startswith(b"\x89PNG\r\n\x1a\n") or b"IEND\xaeB`\x82" not in data[-64:]:
             return False, "This does not appear to be a valid PNG image."
+    if extension == "docx":
+        if not data.startswith(b"PK\x03\x04") or b"word/" not in data[:200000]:
+            return False, "This does not appear to be a valid Word document."
+    if extension == "doc":
+        if not data.startswith(b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"):
+            return False, "This does not appear to be a valid Word document."
+    if extension in {"mp4", "mov"}:
+        if b"ftyp" not in data[:32]:
+            return False, "This does not appear to be a valid video file."
     return True, "File selected."
 
 

@@ -275,7 +275,7 @@ def render_document_uploader(phase_id: str, rule: FileRule) -> None:
             f"Upload {rule.label}",
             type=list(rule.allowed_types),
             key=uploader_key(phase_id, rule.key),
-            help=f"Maximum 40 MB. Allowed types: {type_label}.",
+            help=f"Maximum 200 MB. Allowed types: {type_label}.",
             label_visibility="collapsed",
             on_change=process_uploaded_file,
             args=(phase_id, rule),

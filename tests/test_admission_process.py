@@ -94,12 +94,19 @@ class AdmissionProcessTests(unittest.TestCase):
             for rule in phase["files"]:
                 self.assertTrue(set(rule.allowed_types).issubset(allowed))
 
-    def test_contract_uploads_are_pdf_only(self) -> None:
+    def test_contract_uploads_allow_pdf_and_word(self) -> None:
         contract = next(phase for phase in DEFAULT_PHASES if phase["id"] == "contrato")
         for rule in contract["files"]:
             if rule.can_student_upload:
-                self.assertEqual(rule.allowed_types, ("pdf",))
-                self.assertEqual(allowed_type_label(rule.allowed_types), "PDF")
+                self.assertEqual(rule.allowed_types, ("pdf", "doc", "docx"))
+                self.assertEqual(allowed_type_label(rule.allowed_types), "PDF / DOC / DOCX")
+
+    def test_video_presentation_allows_only_video_formats(self) -> None:
+        phase = next(phase for phase in DEFAULT_PHASES if phase["id"] == "documentos_complementarios")
+        video = next(rule for rule in phase["files"] if rule.key == "video_presentacion")
+
+        self.assertEqual(video.allowed_types, ("mp4", "mov"))
+        self.assertEqual(allowed_type_label(video.allowed_types), "MP4 / MOV")
 
     def test_downloads_are_sorted_from_shortest_label_to_longest(self) -> None:
         contract = next(phase for phase in DEFAULT_PHASES if phase["id"] == "contrato")
@@ -145,7 +152,7 @@ class AdmissionProcessTests(unittest.TestCase):
         self.assertEqual(contract["status"], "pending_review")
         self.assertEqual(agbs.document_id, "DOC-100")
         self.assertEqual(agbs.status, "pending_review")
-        self.assertEqual(agbs.allowed_types, ("pdf",))
+        self.assertEqual(agbs.allowed_types, ("pdf", "doc", "docx"))
 
     def test_prepared_document_keeps_phase_and_document_type(self) -> None:
         payload = prepare_document(

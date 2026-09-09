@@ -6,33 +6,36 @@ from typing import Any, Dict, Iterable, List
 from models.file_rule import FileRule
 
 
-ALLOWED_UPLOAD_TYPES = ("pdf", "jpg", "jpeg", "png")
+ALLOWED_UPLOAD_TYPES = ("pdf", "doc", "docx", "jpg", "jpeg", "png", "mp4", "mov")
 PDF_ONLY = ("pdf",)
-PDF_AND_IMAGES = ALLOWED_UPLOAD_TYPES
+PDF_AND_WORD = ("pdf", "doc", "docx")
+PDF_AND_IMAGES = ("pdf", "jpg", "jpeg", "png")
+VIDEO_ONLY = ("mp4", "mov")
 
 DOCUMENT_ALLOWED_TYPES = {
-    "contrato": PDF_ONLY,
-    "agbs": PDF_ONLY,
-    "reglas_programa": PDF_ONLY,
-    "factura_cas": PDF_ONLY,
-    "factura_asesoria": PDF_ONLY,
-    "confirmacion_admision": PDF_ONLY,
-    "recomendacion_escolar": PDF_ONLY,
-    "certificado_salud": PDF_ONLY,
+    "contrato": PDF_AND_WORD,
+    "agbs": PDF_AND_WORD,
+    "reglas_programa": PDF_AND_WORD,
+    "factura_cas": PDF_AND_WORD,
+    "factura_asesoria": PDF_AND_WORD,
+    "confirmacion_admision": PDF_AND_WORD,
+    "recomendacion_escolar": PDF_AND_WORD,
+    "certificado_salud": PDF_AND_WORD,
     "vacunas": PDF_AND_IMAGES,
-    "seguro_ingles": PDF_ONLY,
-    "carta_familia": PDF_ONLY,
+    "seguro_ingles": PDF_AND_WORD,
+    "carta_familia": PDF_AND_WORD,
     "collage_fotos": PDF_AND_IMAGES,
-    "nacimiento_apostilla": PDF_ONLY,
-    "antecedentes_apostilla": PDF_ONLY,
-    "poder": PDF_ONLY,
-    "carta_presentacion": PDF_ONLY,
-    "formulario_visa": PDF_ONLY,
+    "video_presentacion": VIDEO_ONLY,
+    "nacimiento_apostilla": PDF_AND_WORD,
+    "antecedentes_apostilla": PDF_AND_WORD,
+    "poder": PDF_AND_WORD,
+    "carta_presentacion": PDF_AND_WORD,
+    "formulario_visa": PDF_AND_WORD,
     "pasaporte": PDF_AND_IMAGES,
     "sello_visa": PDF_AND_IMAGES,
     "foto_pasaporte": PDF_AND_IMAGES,
     "eticket": PDF_ONLY,
-    "permiso_menor": PDF_ONLY,
+    "permiso_menor": PDF_AND_WORD,
     "elefand": PDF_AND_IMAGES,
 }
 
