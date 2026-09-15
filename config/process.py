@@ -3,13 +3,14 @@ from __future__ import annotations
 from dataclasses import replace
 from typing import Any, Dict, Iterable, List
 
+from config.i18n import document_description, document_label, phase_subtitle, phase_title
 from models.file_rule import FileRule
 
 
 ALLOWED_UPLOAD_TYPES = ("pdf", "doc", "docx", "jpg", "jpeg", "png", "mp4", "mov")
-PDF_ONLY = ("pdf",)
+PDF_ONLY = ("pdf", "doc", "docx")
 PDF_AND_WORD = ("pdf", "doc", "docx")
-PDF_AND_IMAGES = ("pdf", "jpg", "jpeg", "png")
+PDF_AND_IMAGES = ("pdf", "doc", "docx", "jpg", "jpeg", "png")
 VIDEO_ONLY = ("mp4", "mov")
 
 DOCUMENT_ALLOWED_TYPES = {
@@ -52,8 +53,8 @@ def document(
 ) -> FileRule:
     return FileRule(
         key=key,
-        label=label,
-        description=description,
+        label=document_label(key, label),
+        description=document_description(key, description),
         flow_type=flow_type,
         template_scope=template_scope,
         can_student_upload=can_student_upload,
@@ -168,7 +169,7 @@ DEFAULT_PHASES: List[Dict[str, Any]] = [
 
 def phases_from_progress(progress: Dict[str, Any] | None) -> List[Dict[str, Any]]:
     if not progress:
-        return [_copy_phase(phase) for phase in DEFAULT_PHASES]
+        return [_localized_phase(_copy_phase(phase)) for phase in DEFAULT_PHASES]
 
     api_phases = {
         str(phase.get("phase_id")): phase
@@ -192,7 +193,7 @@ def phases_from_progress(progress: Dict[str, Any] | None) -> List[Dict[str, Any]
                 _merge_document(rule, documents.get(rule.key))
                 for rule in phase["files"]
             ]
-        merged_phases.append(phase)
+        merged_phases.append(_localized_phase(phase))
     return merged_phases
 
 
@@ -202,6 +203,15 @@ def document_count(phases: Iterable[Dict[str, Any]] = DEFAULT_PHASES) -> int:
 
 def _copy_phase(phase: Dict[str, Any]) -> Dict[str, Any]:
     return {**phase, "files": list(phase["files"])}
+
+
+def _localized_phase(phase: Dict[str, Any]) -> Dict[str, Any]:
+    phase_id = str(phase["id"])
+    return {
+        **phase,
+        "title": phase_title(phase_id, str(phase["title"])),
+        "subtitle": phase_subtitle(phase_id, str(phase["subtitle"])),
+    }
 
 
 def _merge_document(rule: FileRule, item: Dict[str, Any] | None) -> FileRule:
@@ -214,7 +224,7 @@ def _merge_document(rule: FileRule, item: Dict[str, Any] | None) -> FileRule:
     )
     return replace(
         rule,
-        label=str(item.get("document_name") or rule.label),
+        label=document_label(rule.key, str(item.get("document_name") or rule.label)),
         flow_type=str(item.get("flow_type") or rule.flow_type),
         template_scope=str(item.get("template_scope") or rule.template_scope),
         can_student_upload=bool(item.get("can_student_upload", rule.can_student_upload)),

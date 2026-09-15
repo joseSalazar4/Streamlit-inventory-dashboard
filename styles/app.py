@@ -33,7 +33,9 @@ def inject_css() -> None:
         html, body, [class*="css"] { font-family:"Inter","Segoe UI",Arial,sans-serif; }
         .stApp { background:var(--cas-page); color:var(--cas-green-dark); }
         #MainMenu, footer { visibility:hidden; }
-        [data-testid="stAppDeployButton"] { display:none !important; }
+        [data-testid="stToolbar"],
+        [data-testid="stAppDeployButton"],
+        [data-testid="stMainMenu"] { display:none !important; }
         div[data-testid="stStatusWidget"],
         div[data-testid="stDecoration"] { display:none !important; }
         header[data-testid="stHeader"] { background:transparent; }
@@ -296,8 +298,9 @@ def inject_css() -> None:
             font-size:.82rem; font-weight:800; border:1px solid transparent; white-space:nowrap;
         }
         .status-completed { background:#e0efde; color:var(--cas-green); border-color:#c0ddbd; }
-        .status-missing { background:#fff0e7; color:#c85e22; border-color:#ffd1b7; }
-        .status-locked { background:#fff5ee; color:#d97706; border-color:#fed7aa; }
+        .status-missing { background:#ffe4e6; color:#be123c; border-color:#fecdd3; }
+        .status-locked { background:#f3f4f6; color:#4b5563; border-color:#d1d5db; }
+        .status-waiting { background:#f3f4f6; color:#4b5563; border-color:#d1d5db; }
         .status-ready { background:var(--cas-green-soft); color:var(--cas-green); border-color:var(--cas-green-border); }
         [class*="st-key-phase_header_"] { position:relative; }
         [class*="st-key-phase_header_"] .phase-card { padding-right:12.75rem; }
@@ -341,15 +344,33 @@ def inject_css() -> None:
         }
         [class*="st-key-phase_action_locked_"] .stButton > button,
         [class*="st-key-phase_action_locked_"] .stButton > button:disabled {
-            background:#fff5ee !important;
-            color:#d97706 !important;
-            border:1px solid #fed7aa !important;
+            background:#f3f4f6 !important;
+            color:#4b5563 !important;
+            border:1px solid #d1d5db !important;
             cursor:not-allowed !important;
             opacity:1 !important;
         }
         [class*="st-key-phase_action_locked_"] .stButton > button:hover {
-            background:#fff5ee !important;
-            border-color:#fed7aa !important;
+            background:#f3f4f6 !important;
+            border-color:#d1d5db !important;
+        }
+        [class*="st-key-phase_action_waiting_"] .stButton > button {
+            background:#f3f4f6 !important;
+            color:#4b5563 !important;
+            border:1px solid #d1d5db !important;
+        }
+        [class*="st-key-phase_action_waiting_"] .stButton > button:hover {
+            background:#e5e7eb !important;
+            border-color:#cbd5e1 !important;
+        }
+        [class*="st-key-phase_action_missing_"] .stButton > button {
+            background:#ffe4e6 !important;
+            color:#be123c !important;
+            border:1px solid #fecdd3 !important;
+        }
+        [class*="st-key-phase_action_missing_"] .stButton > button:hover {
+            background:#fecdd3 !important;
+            border-color:#fda4af !important;
         }
 
         [class*="st-key-upload_item_"] {

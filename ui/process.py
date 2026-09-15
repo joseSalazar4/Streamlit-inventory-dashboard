@@ -14,6 +14,7 @@ from api.cas_api import (
     download_file,
 )
 from auth.session_cookie import sign_out_current_user
+from config.i18n import de
 from models.file_rule import FileRule
 from validators.files import (
     process_uploaded_file,
@@ -50,13 +51,13 @@ def format_display_name(value: object) -> str:
 def phase_status(phase: Dict[str, Any]) -> Tuple[str, str]:
     remote_status = str(phase.get("status") or "")
     if remote_status == "approved":
-        return "completed", "Completed"
+        return "completed", de("Completed", "Abgeschlossen")
     if remote_status == "needs_replacement":
-        return "missing", "Requires attention"
+        return "missing", de("Requires attention", "Aktion erforderlich")
     if remote_status == "pending_review":
-        return "review", "In review"
+        return "review", de("In review", "In Pruefung")
     if remote_status == "waiting_for_cas":
-        return "waiting", "Waiting for CAS"
+        return "waiting", de("Waiting for CAS", "Warten auf CAS")
 
     uploadable = [rule for rule in phase["files"] if rule.can_student_upload]
     if not uploadable:
@@ -71,12 +72,12 @@ def phase_status(phase: Dict[str, Any]) -> Tuple[str, str]:
         if result.get("storage_status") == "saved" or rule.status in REMOTE_FILE_STATUSES
     )
     if completed == len(uploadable):
-        return "completed", "Completed"
+        return "completed", de("Completed", "Abgeschlossen")
     if any(result.get("ok") is False for result in results):
-        return "missing", "Requires attention"
+        return "missing", de("Requires attention", "Aktion erforderlich")
     if any(result.get("storage_status") == "ready_to_submit" for result in results):
-        return "ready", "Ready to submit"
-    return "pending", "Pending"
+        return "ready", de("Ready to submit", "Bereit zum Senden")
+    return "pending", de("Pending", "Ausstehend")
 
 
 def student_current_phase_index(phases: list[Dict[str, Any]]) -> int:
@@ -106,12 +107,12 @@ def progress_metrics(phases: Iterable[Dict[str, Any]]) -> Tuple[int, int]:
 def render_sidebar() -> None:
     with st.sidebar:
         st.markdown(
-            """
+            f"""
             <div class="brand-box">
                 <div class="brand-logo-image" aria-label="CAS logo"></div>
                 <div>
                     <div class="brand-title">CAS</div>
-                    <div class="brand-subtitle">DOCUMENT PORTAL</div>
+                    <div class="brand-subtitle">{de('DOCUMENT PORTAL', 'DOKUMENTENPORTAL')}</div>
                 </div>
             </div>
             """,
@@ -119,7 +120,7 @@ def render_sidebar() -> None:
         )
         st.markdown('<div class="nav-active">', unsafe_allow_html=True)
         st.button(
-            "Dashboard",
+            de("Dashboard", "Uebersicht"),
             key="nav_dashboard",
             icon=":material/dashboard:",
             width="stretch",
@@ -127,7 +128,7 @@ def render_sidebar() -> None:
         st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button(
-            "Sign out",
+            de("Sign out", "Abmelden"),
             key="nav_sign_out",
             icon=":material/logout:",
             width="stretch",
@@ -139,16 +140,16 @@ def render_sidebar() -> None:
 def render_sidebar_help() -> None:
     with st.container(key="sidebar_help_card"):
         st.markdown(
-            """
+            f"""
             <div class="sidebar-help-copy">
-                <div class="stat-title">Need help?</div>
-                <div class="stat-meta">Contact support if you need help with a document.</div>
+                <div class="stat-title">{de('Need help?', 'Brauchst du Hilfe?')}</div>
+                <div class="stat-meta">{de('Contact support if you need help with a document.', 'Kontaktiere CAS, wenn du Hilfe mit einem Dokument brauchst.')}</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
         st.link_button(
-            "Contact support",
+            de("Contact support", "CAS kontaktieren"),
             SUPPORT_URL,
             icon=":material/support_agent:",
             type="tertiary",
@@ -159,7 +160,7 @@ def render_sidebar_help() -> None:
 def render_mobile_help() -> None:
     with st.container(key="mobile_help"):
         st.link_button(
-            "Need help?",
+            de("Need help?", "Brauchst du Hilfe?"),
             SUPPORT_URL,
             icon=":material/support_agent:",
             type="tertiary",
@@ -173,8 +174,8 @@ def render_topbar() -> None:
     st.markdown(
         f"""
         <div class="greeting">
-            <h1>Hello, {name}.</h1>
-            <p>Welcome back. Here is the status of your admission process.</p>
+            <h1>{de('Hello', 'Hallo')}, {name}.</h1>
+            <p>{de('Welcome back. Here is the status of your admission process.', 'Willkommen zurueck. Hier siehst du den Stand deines Aufnahmeprozesses.')}</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -206,14 +207,14 @@ def render_progress_card(phases: list[Dict[str, Any]]) -> None:
         f"""
         <div class="glass-card progress-card">
             <div class="progress-head">
-                <div class="progress-title">Your admission progress</div>
-                <div class="status-chip status-ready">Phase {current_phase} of {len(phases)}</div>
+                <div class="progress-title">{de('Your admission progress', 'Dein Aufnahmefortschritt')}</div>
+                <div class="status-chip status-ready">{de('Phase', 'Phase')} {current_phase} {de('of', 'von')} {len(phases)}</div>
             </div>
             <div class="progress-track">
                 <div class="progress-fill" style="width:{percentage}%;"></div>
             </div>
             <div class="progress-meta">
-                <div class="tiny">{done} of {total} student files received.</div>
+                <div class="tiny">{done} {de('of', 'von')} {total} {de('student files received.', 'Dateien erhalten.')}</div>
                 <div class="progress-number">{percentage}%</div>
             </div>
         </div>
@@ -239,14 +240,18 @@ def allowed_type_label(allowed_types: Iterable[str]) -> str:
     return " / ".join(labels)
 
 
-def render_document_uploader(phase_id: str, rule: FileRule) -> None:
+def _ordered_label(order_number: int, label: str) -> str:
+    return f"{order_number}. {label}"
+
+
+def render_document_uploader(phase_id: str, rule: FileRule, order_number: int | None = None) -> None:
     result_key = validation_key(phase_id, rule.key)
     result = st.session_state.validation.get(result_key)
     type_label = allowed_type_label(rule.allowed_types)
     status_text = {
-        "approved": "Approved",
-        "pending_review": "Pending review",
-        "needs_replacement": "Replacement requested",
+        "approved": de("Approved", "Genehmigt"),
+        "pending_review": de("Pending review", "In Pruefung"),
+        "needs_replacement": de("Replacement requested", "Korrektur erforderlich"),
     }.get(rule.status)
 
     with st.container(key=f"upload_item_{phase_id}_{rule.key}"):
@@ -254,7 +259,7 @@ def render_document_uploader(phase_id: str, rule: FileRule) -> None:
             f"""
             <div class="upload-summary">
                 <div class="upload-title-row">
-                    <div class="stat-title">{escape(rule.label)}</div>
+                    <div class="stat-title">{escape(_ordered_label(order_number, rule.label) if order_number else rule.label)}</div>
                     <span class="file-chip">{escape(type_label)}</span>
                 </div>
                 <div class="upload-divider"></div>
@@ -267,15 +272,15 @@ def render_document_uploader(phase_id: str, rule: FileRule) -> None:
             st.info(status_text, icon=":material/info:")
             if rule.status == "needs_replacement" and rule.rejection_comment:
                 st.error(
-                    f"Correction reason: {rule.rejection_comment}",
+                    f"{de('Correction reason', 'Korrekturgrund')}: {rule.rejection_comment}",
                     icon=":material/report:",
                 )
 
         st.file_uploader(
-            f"Upload {rule.label}",
+            f"{de('Upload', 'Hochladen')} {rule.label}",
             type=list(rule.allowed_types),
             key=uploader_key(phase_id, rule.key),
-            help=f"Maximum 200 MB. Allowed types: {type_label}.",
+            help=f"{de('Maximum 200 MB. Allowed types:', 'Maximal 200 MB. Erlaubte Dateitypen:')} {type_label}.",
             label_visibility="collapsed",
             on_change=process_uploaded_file,
             args=(phase_id, rule),
@@ -284,13 +289,13 @@ def render_document_uploader(phase_id: str, rule: FileRule) -> None:
 
         if result:
             st.caption(
-                f"Selected: {result.get('file_name', 'file')} "
+                f"{de('Selected', 'Ausgewaehlt')}: {result.get('file_name', de('file', 'Datei'))} "
                 f"({format_file_size(int(result.get('file_size') or 0))})"
             )
             if result.get("storage_status") == "saved":
                 st.success(result["message"])
             elif result.get("storage_status") == "submitting":
-                st.info("Submitting file...")
+                st.info(de("Submitting file...", "Datei wird gesendet..."))
             elif result.get("ok"):
                 st.info(result["message"])
             else:
@@ -298,23 +303,20 @@ def render_document_uploader(phase_id: str, rule: FileRule) -> None:
 
 
 def _download_rules(phase: Dict[str, Any]) -> list[FileRule]:
-    rules = [
+    return [
         rule
         for rule in phase["files"]
         if rule.flow_type == "external_link_only"
         or rule.template_scope in {"global", "student_specific"}
     ]
-    return sorted(
-        rules,
-        key=lambda rule: (len(rule.label.strip()), rule.label.casefold()),
-    )
 
 
-def _render_download_button(phase_id: str, rule: FileRule) -> None:
+def _render_download_button(phase_id: str, rule: FileRule, order_number: int) -> None:
     key = f"download_{phase_id}_{rule.key}"
+    label = _ordered_label(order_number, rule.label)
     if rule.flow_type == "external_link_only":
         st.link_button(
-            rule.label,
+            label,
             rule.external_url or "https://hubspot.com",
             icon=":material/open_in_new:",
             width="stretch",
@@ -323,30 +325,30 @@ def _render_download_button(phase_id: str, rule: FileRule) -> None:
     if rule.template_scope == "global":
         if rule.template_available is False:
             st.button(
-                rule.label,
+                label,
                 key=key,
                 icon=":material/download:",
                 disabled=True,
-                help="This template is not available yet.",
+                help=de("This template is not available yet.", "Diese Vorlage ist noch nicht verfuegbar."),
                 width="stretch",
             )
             return
         _render_api_download_button(
-            rule.label,
+            label,
             document_template_download_url(rule.key, scope="global"),
             f"{rule.key}.pdf",
             key,
         )
         return
     if rule.document_id:
-        _render_api_download_button(rule.label, document_download_url(rule.document_id), f"{rule.key}.pdf", key)
+        _render_api_download_button(label, document_download_url(rule.document_id), f"{rule.key}.pdf", key)
         return
     st.button(
-        rule.label,
+        label,
         key=key,
         icon=":material/download:",
         disabled=True,
-        help="This file is not available yet.",
+        help=de("This file is not available yet.", "Diese Datei ist noch nicht verfuegbar."),
         width="stretch",
     )
 
@@ -379,17 +381,19 @@ def render_phase_downloads(phase: Dict[str, Any]) -> None:
     rules = _download_rules(phase)
     if not rules:
         return
+    order_by_key = {rule.key: index for index, rule in enumerate(phase["files"], start=1)}
     with st.expander(
-        "Templates",
+        de("Templates", "Vorlagen"),
         icon=":material/download:",
+        expanded=True,
     ):
-        st.caption("Open external forms or download files provided by CAS.")
+        st.caption(de("Open external forms or download files provided by CAS.", "Oeffne Formulare oder lade Dateien herunter, die CAS bereitstellt."))
         for row_start in range(0, len(rules), 3):
             row_rules = rules[row_start : row_start + 3]
             columns = st.columns(len(row_rules), gap="small")
             for column, rule in zip(columns, row_rules):
                 with column:
-                    _render_download_button(str(phase["id"]), rule)
+                    _render_download_button(str(phase["id"]), rule, order_by_key.get(rule.key, 0))
 
 
 def _phase_ready_documents(phase: Dict[str, Any]) -> list[FileRule]:
@@ -414,16 +418,16 @@ def render_phase_submit(phase: Dict[str, Any], placement: str) -> None:
     ready_rules = _phase_ready_documents(phase)
     with st.container(key=f"phase_submit_bar_{placement}_{phase['id']}"):
         if st.button(
-            f"Submit ready files ({len(ready_rules)})",
+            f"{de('Submit ready files', 'Ausgewaehlte Dateien senden')} ({len(ready_rules)})",
             key=f"submit_phase_{placement}_{phase['id']}",
             icon=":material/cloud_upload:",
             type="primary",
             disabled=not ready_rules,
-            help="Submit the files you selected.",
+            help=de("Submit the files you selected.", "Sende die ausgewaehlten Dateien."),
             width="stretch",
         ):
             try:
-                with st.spinner(f"Submitting {len(ready_rules)} files..."):
+                with st.spinner(f"{de('Submitting', 'Sende')} {len(ready_rules)} {de('files...', 'Dateien...')}"):
                     submit_uploaded_files(str(phase["id"]), ready_rules)
             except Exception:
                 LOGGER.exception("Phase file submission failed for %s", phase["id"])
@@ -434,7 +438,7 @@ def render_phase_submit(phase: Dict[str, Any], placement: str) -> None:
                     )
                     if result.get("storage_status") == "submitting":
                         result["storage_status"] = "ready_to_submit"
-                st.error("Files could not be submitted. Please try again.")
+                st.error(de("Files could not be submitted. Please try again.", "Die Dateien konnten nicht gesendet werden. Bitte versuche es erneut."))
             else:
                 st.rerun()
 
@@ -455,27 +459,37 @@ def render_phase_header(
     phase_index: int,
 ) -> None:
     status, status_label = phase_status(phase)
-    if phase_index < MINIMUM_STUDENT_PHASE_INDEX:
-        status, status_label = "completed", "Completed"
+    is_completed_intake = phase_index < MINIMUM_STUDENT_PHASE_INDEX
+    if is_completed_intake:
+        status, status_label = "completed", de("Completed", "Abgeschlossen")
     phase_id = str(phase["id"])
     unlocked = is_phase_unlocked(phases, phase_index)
-    active = unlocked and st.session_state.expanded_phase == phase_id
-    if unlocked:
-        chip_text = status_label if status != "pending" else "Open phase"
+    active = (
+        unlocked
+        and not is_completed_intake
+        and st.session_state.expanded_phase == phase_id
+    )
+    if is_completed_intake:
+        chip_text = de("Completed", "Abgeschlossen")
+        status_class = "completed"
+        action_icon = ":material/check_circle:"
+    elif unlocked:
+        chip_text = status_label if status != "pending" else de("Open phase", "Phase oeffnen")
         status_class = {
             "completed": "completed",
             "missing": "missing",
-            "review": "ready",
-            "waiting": "locked",
-            "ready": "ready",
-        }.get(status, "ready")
+            "review": "waiting",
+            "waiting": "waiting",
+            "ready": "waiting",
+            "pending": "waiting",
+        }.get(status, "waiting")
         action_icon = (
             ":material/keyboard_arrow_up:"
             if active
             else ":material/keyboard_arrow_down:"
         )
     else:
-        chip_text = "Locked"
+        chip_text = de("Locked", "Gesperrt")
         status_class = "locked"
         action_icon = ":material/lock:"
 
@@ -502,11 +516,14 @@ def render_phase_header(
             chip_text,
             key=f"phase_action_{status_class}_{phase_id}",
             icon=action_icon,
-            disabled=not unlocked,
+            disabled=is_completed_intake or not unlocked,
             help=(
-                ("Close phase" if active else "Open phase")
+                de("This phase is completed.", "Diese Phase ist abgeschlossen.")
+                if is_completed_intake
+                else
+                (de("Close phase", "Phase schliessen") if active else de("Open phase", "Phase oeffnen"))
                 if unlocked
-                else "CAS will unlock this phase after approving the current phase."
+                else de("CAS will unlock this phase after approving the current phase.", "CAS schaltet diese Phase frei, nachdem die aktuelle Phase genehmigt wurde.")
             ),
             on_click=_toggle_phase,
             args=(phase_id,),
@@ -518,17 +535,18 @@ def render_phase_uploads(phase: Dict[str, Any]) -> None:
     uploadable = [rule for rule in phase["files"] if rule.can_student_upload]
     if not uploadable:
         return
+    order_by_key = {rule.key: index for index, rule in enumerate(phase["files"], start=1)}
     with st.expander(
-        "Files to upload",
+        de("Files to upload", "Dateien zum Hochladen"),
         icon=":material/upload_file:",
+        expanded=True,
     ):
-        render_phase_submit(phase, "top")
         for row_start in range(0, len(uploadable), 3):
             row_rules = uploadable[row_start : row_start + 3]
             columns = st.columns(len(row_rules), gap="medium")
             for column, rule in zip(columns, row_rules):
                 with column:
-                    render_document_uploader(str(phase["id"]), rule)
+                    render_document_uploader(str(phase["id"]), rule, order_by_key.get(rule.key))
         render_phase_submit(phase, "bottom")
 
 
@@ -539,7 +557,8 @@ def render_phase_card(
 ) -> None:
     render_phase_header(phases, phase, phase_index)
     if (
-        is_phase_unlocked(phases, phase_index)
+        phase_index >= MINIMUM_STUDENT_PHASE_INDEX
+        and is_phase_unlocked(phases, phase_index)
         and st.session_state.expanded_phase == str(phase["id"])
     ):
         render_phase_uploads(phase)

@@ -5,6 +5,7 @@ import os
 import streamlit as st
 
 from api.cas_api import CasApiError, get_admission_progress
+from config.i18n import de
 from config.process import phases_from_progress
 from ui.process import (
     render_phase_card,
@@ -32,7 +33,7 @@ def _load_progress() -> dict | None:
 
 @st.fragment
 def _render_phase_list(phases: list[dict]) -> None:
-    st.markdown("## Admission phases")
+    st.markdown(de("## Admission phases", "## Phasen der Aufnahme"))
     for phase_index, phase in enumerate(phases):
         render_phase_card(phases, phase, phase_index)
 

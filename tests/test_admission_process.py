@@ -108,18 +108,25 @@ class AdmissionProcessTests(unittest.TestCase):
         self.assertEqual(video.allowed_types, ("mp4", "mov"))
         self.assertEqual(allowed_type_label(video.allowed_types), "MP4 / MOV")
 
-    def test_downloads_are_sorted_from_shortest_label_to_longest(self) -> None:
+    def test_downloads_follow_phase_document_order(self) -> None:
         contract = next(phase for phase in DEFAULT_PHASES if phase["id"] == "contrato")
         labels = [rule.label for rule in _download_rules(contract)]
         self.assertEqual(
             labels,
-            sorted(labels, key=lambda label: (len(label.strip()), label.casefold())),
+            [
+                "Contrato firmado",
+                "Condiciones generales / AGBs",
+                "Reglas del programa CAS",
+                "Factura CAS",
+                "Factura asesoria Anne",
+                "Confirmacion de admision",
+            ],
         )
 
     def test_image_extensions_share_one_readable_label(self) -> None:
         self.assertEqual(
-            allowed_type_label(("pdf", "jpg", "jpeg", "png")),
-            "PDF / JPG / PNG",
+            allowed_type_label(("pdf", "doc", "docx", "jpg", "jpeg", "png")),
+            "PDF / DOC / DOCX / JPG / PNG",
         )
 
     def test_progress_response_enriches_phase_and_document(self) -> None:

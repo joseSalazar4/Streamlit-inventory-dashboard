@@ -15,6 +15,7 @@ from api.cas_api import (
     request_password_reset,
 )
 from auth.session_cookie import start_auth_session
+from config.i18n import de
 
 
 TEST_USERNAME = "admin"
@@ -29,12 +30,12 @@ SAFE_ACCOUNT_ERRORS = {
 
 def _auth_header() -> None:
     st.markdown(
-        """
+        f"""
         <div class="auth-brand">
             <div class="auth-logo">CAS</div>
             <div>
-                <div class="auth-title">Document Portal</div>
-                <div class="auth-subtitle">Secure access</div>
+                <div class="auth-title">{de('Document Portal', 'Dokumentenportal')}</div>
+                <div class="auth-subtitle">{de('Secure access', 'Sicherer Zugang')}</div>
             </div>
         </div>
         """,
@@ -104,10 +105,10 @@ def _student_from_login(email: str, password: str) -> tuple[Dict[str, Any], Dict
 
 def _render_student_sign_in() -> None:
     with st.form("student_sign_in", enter_to_submit=True, border=False):
-        email = st.text_input("Email or username", key="signin_email")
-        password = st.text_input("Password", type="password", key="signin_password")
+        email = st.text_input(de("Email", "E-Mail"), key="signin_email")
+        password = st.text_input(de("Password", "Passwort"), type="password", key="signin_password")
         submitted = st.form_submit_button(
-            "Sign in",
+            de("Sign in", "Anmelden"),
             type="primary",
             icon=":material/login:",
             width="stretch",
@@ -115,22 +116,22 @@ def _render_student_sign_in() -> None:
 
     if submitted:
         if not email or not password:
-            st.error("Enter your email and password.")
+            st.error(de("Enter your email and password.", "Gib deine E-Mail-Adresse und dein Passwort ein."))
             return
         try:
-            with st.spinner("Signing in..."):
+            with st.spinner(de("Signing in...", "Anmeldung laeuft...")):
                 user, progress = _student_from_login(email, password)
             user, password_change = _password_change_redirect(user, progress, email)
         except CasApiError as exc:
             LOGGER.warning("Student sign-in failed: %s", exc)
             if exc.code == "temporary_password_expired":
-                st.error("Your temporary password expired. Request a new password reset.")
+                st.error(de("Your temporary password expired. Request a new password reset.", "Dein temporaeres Passwort ist abgelaufen. Fordere ein neues Passwort an."))
             elif exc.status in {401, 403}:
-                st.error("Invalid email or password.")
+                st.error(de("Invalid email or password.", "E-Mail oder Passwort ist ungueltig."))
             elif str(exc) in SAFE_ACCOUNT_ERRORS:
-                st.error(str(exc))
+                st.error(de(str(exc), "Dein Konto konnte nicht fuer dieses Portal bestaetigt werden. Bitte kontaktiere CAS."))
             else:
-                st.error("We couldn't sign you in right now. Please try again.")
+                st.error(de("We couldn't sign you in right now. Please try again.", "Die Anmeldung ist im Moment nicht moeglich. Bitte versuche es erneut."))
             return
 
         if password_change:
@@ -150,7 +151,7 @@ def _render_student_sign_in() -> None:
         return
 
     if st.button(
-        "Forgot password?",
+        de("Forgot password?", "Passwort vergessen?"),
         key="forgot_password",
         type="tertiary",
         width="stretch",
@@ -181,9 +182,9 @@ def _password_change_redirect(
 
 def _render_forgot_password() -> None:
     with st.form("forgot_password_form", enter_to_submit=True, border=False):
-        email = st.text_input("Student email", key="reset_email")
+        email = st.text_input(de("Student email", "E-Mail des Schuelers"), key="reset_email")
         submitted = st.form_submit_button(
-            "Send password reset",
+            de("Send password reset", "Neues Passwort senden"),
             type="primary",
             icon=":material/mail:",
             width="stretch",
@@ -191,22 +192,25 @@ def _render_forgot_password() -> None:
 
     if submitted:
         if not email:
-            st.error("Enter your student email.")
+            st.error(de("Enter your student email.", "Gib deine E-Mail-Adresse ein."))
         else:
             try:
-                with st.spinner("Sending password reset..."):
+                with st.spinner(de("Sending password reset...", "Neues Passwort wird gesendet...")):
                     request_password_reset(email)
                 st.session_state.auth_notice = (
-                    "If an account exists for that email, a temporary password has been sent."
+                    de(
+                        "If an account exists for that email, a temporary password has been sent.",
+                        "Falls ein Konto fuer diese E-Mail existiert, wurde ein temporaeres Passwort gesendet.",
+                    )
                 )
                 st.session_state.auth_view = "sign_in"
                 st.rerun()
             except CasApiError as exc:
                 LOGGER.warning("Password reset request failed: %s", exc)
-                st.error("Password reset is unavailable right now. Please try again later.")
+                st.error(de("Password reset is unavailable right now. Please try again later.", "Das Zuruecksetzen des Passworts ist im Moment nicht moeglich. Bitte versuche es spaeter erneut."))
 
     if st.button(
-        "Back to sign in",
+        de("Back to sign in", "Zurueck zur Anmeldung"),
         key="reset_back_to_signin",
         icon=":material/arrow_back:",
         type="tertiary",
@@ -228,9 +232,9 @@ def _render_change_password() -> None:
     email = str(st.session_state.get("pending_auth_email") or "")
     change_token = str(st.session_state.get("password_change_token") or "")
     if not pending_user or not email or not change_token:
-        st.error("This password reset is no longer available. Request a new one.")
+        st.error(de("This password reset is no longer available. Request a new one.", "Dieses temporaere Passwort ist nicht mehr verfuegbar. Fordere ein neues an."))
         if st.button(
-            "Back to sign in",
+            de("Back to sign in", "Zurueck zur Anmeldung"),
             key="change_password_back_to_signin",
             icon=":material/arrow_back:",
             type="tertiary",
@@ -243,18 +247,18 @@ def _render_change_password() -> None:
 
     with st.form("change_password_form", enter_to_submit=True, border=False):
         new_password = st.text_input(
-            "New password",
+            de("New password", "Neues Passwort"),
             type="password",
             key="new_password",
         )
         confirm_password = st.text_input(
-            "Confirm new password",
+            de("Confirm new password", "Neues Passwort bestaetigen"),
             type="password",
             key="confirm_new_password",
         )
-        st.caption("Use at least 10 characters with uppercase, lowercase, and a number.")
+        st.caption(de("Use at least 10 characters with uppercase, lowercase, and a number.", "Verwende mindestens 10 Zeichen mit Grossbuchstaben, Kleinbuchstaben und einer Zahl."))
         submitted = st.form_submit_button(
-            "Update password and sign in",
+            de("Update password and sign in", "Passwort aktualisieren und anmelden"),
             type="primary",
             icon=":material/lock_reset:",
             width="stretch",
@@ -262,20 +266,20 @@ def _render_change_password() -> None:
 
     if submitted:
         if not new_password or not confirm_password:
-            st.error("Enter and confirm your new password.")
+            st.error(de("Enter and confirm your new password.", "Gib dein neues Passwort ein und bestaetige es."))
             return
         if new_password != confirm_password:
-            st.error("The passwords do not match.")
+            st.error(de("The passwords do not match.", "Die Passwoerter stimmen nicht ueberein."))
             return
         try:
-            with st.spinner("Updating password..."):
+            with st.spinner(de("Updating password...", "Passwort wird aktualisiert...")):
                 change_password(email, change_token, new_password)
         except CasApiError as exc:
             LOGGER.warning("Password change failed: %s", exc)
             if exc.code in {"weak_password", "password_unchanged"}:
-                st.error(str(exc))
+                st.error(de(str(exc), "Das Passwort erfuellt die Anforderungen nicht."))
             else:
-                st.error("This password reset has expired. Request a new one.")
+                st.error(de("This password reset has expired. Request a new one.", "Dieses temporaere Passwort ist abgelaufen. Fordere ein neues an."))
             return
 
         progress = st.session_state.get("pending_auth_progress")
@@ -287,7 +291,7 @@ def _render_change_password() -> None:
         st.rerun()
 
     if st.button(
-        "Back to sign in",
+        de("Back to sign in", "Zurueck zur Anmeldung"),
         key="change_password_back_to_signin",
         icon=":material/arrow_back:",
         type="tertiary",
@@ -304,10 +308,10 @@ def auth_page() -> None:
             _auth_header()
             auth_view = st.session_state.get("auth_view")
             captions = {
-                "forgot_password": "Enter your email to receive a temporary password.",
-                "change_password": "Create a new password to finish signing in.",
+                "forgot_password": de("Enter your email to receive a temporary password.", "Gib deine E-Mail-Adresse ein, um ein temporaeres Passwort zu erhalten."),
+                "change_password": de("Create a new password to finish signing in.", "Erstelle ein neues Passwort, um die Anmeldung abzuschliessen."),
             }
-            st.caption(captions.get(auth_view, "Sign in to continue."))
+            st.caption(captions.get(auth_view, de("Sign in to continue.", "Melde dich an, um fortzufahren.")))
             notice = st.session_state.pop("auth_notice", "")
             if notice:
                 st.success(notice)
