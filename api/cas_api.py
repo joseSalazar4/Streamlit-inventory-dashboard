@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import json
 import mimetypes
 import os
 import socket
+import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -216,6 +220,43 @@ def document_template_download_url(document_type_id: str, scope: str = "global")
     encoded = parse.quote(document_type_id, safe="")
     query = parse.urlencode({"scope": scope})
     return f"{api_base_url()}/document-templates/{encoded}/download?{query}"
+
+
+def signed_download_url(url: str, expires_in_seconds: int = 120) -> str:
+    token_secret = os.getenv("CAS_API_AUTH_TOKEN", "").strip()
+    user_token = _current_user_token()
+    if not token_secret or not user_token:
+        return url
+
+    parsed = parse.urlparse(url)
+    target = _download_target(parsed.path, parsed.query)
+    payload = {
+        "exp": int(time.time()) + max(30, expires_in_seconds),
+        "target": target,
+        "user_token": user_token,
+    }
+    body = _b64_encode(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8"))
+    signature = _download_signature(body, token_secret)
+    token = f"{body}.{signature}"
+    query = parse.parse_qsl(parsed.query, keep_blank_values=True)
+    query.append(("cas_download_token", token))
+    return parse.urlunparse(parsed._replace(query=parse.urlencode(query)))
+
+
+def _download_target(path: str, query: str) -> str:
+    pairs = parse.parse_qsl(query, keep_blank_values=True)
+    pairs = [(key, value) for key, value in pairs if key != "cas_download_token"]
+    query_string = parse.urlencode(sorted(pairs))
+    return f"{path}?{query_string}" if query_string else path
+
+
+def _download_signature(body: str, secret: str) -> str:
+    digest = hmac.new(secret.encode("utf-8"), body.encode("utf-8"), hashlib.sha256).digest()
+    return _b64_encode(digest)
+
+
+def _b64_encode(raw: bytes) -> str:
+    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
 
 def download_file(url: str) -> bytes:

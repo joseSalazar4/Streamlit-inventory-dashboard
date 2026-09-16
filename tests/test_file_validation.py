@@ -22,7 +22,7 @@ class FileValidationTests(unittest.TestCase):
             with self.subTest(name=name):
                 ok, message = validate_file(name, content)
                 self.assertTrue(ok)
-                self.assertEqual(message, "File selected.")
+                self.assertEqual(message, "Archivo seleccionado.")
 
     def test_rejects_disallowed_extension_and_mismatched_content(self) -> None:
         self.assertFalse(validate_file("malware.exe", b"MZ")[0])
@@ -39,7 +39,7 @@ class FileValidationTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(
             message,
-            "This PDF contains unsupported content. Please choose a different file.",
+            "Este PDF contiene contenido no permitido. Elige otro archivo.",
         )
 
     def test_allows_pdf_name_marker_inside_binary_content(self) -> None:
@@ -48,7 +48,7 @@ class FileValidationTests(unittest.TestCase):
             b"%PDF-1.7\nstream\ncompressed/jSi-bytes\nendstream\n%%EOF",
         )
         self.assertTrue(ok)
-        self.assertEqual(message, "File selected.")
+        self.assertEqual(message, "Archivo seleccionado.")
 
     @patch("validators.file_content.MAX_FILE_SIZE_BYTES", 8)
     def test_rejects_file_over_configured_limit(self) -> None:

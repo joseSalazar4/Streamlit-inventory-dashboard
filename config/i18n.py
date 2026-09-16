@@ -33,14 +33,14 @@ PHASE_SUBTITLES_DE = {
 
 DOCUMENT_LABELS_DE = {
     "formulario_f1": "Online-Formular (F1)",
-    "sobre_mi": "UEBER MICH",
+    "sobre_mi": "Über mich",
     "entrevista": "Interview",
     "formulario_f2": "Ergaenzendes Formular (F2)",
     "contrato": "Vertrag",
     "agbs": "AGBs",
     "reglas_programa": "CAS-Programmregeln",
     "factura_cas": "Rechnung CAS",
-    "factura_asesoria": "Rechnung Beratung (Anne)",
+    "factura_asesoria": "Rechnung Beratung",
     "confirmacion_admision": "Aufnahmebestaetigung",
     "recomendacion_escolar": "Schulgutachten",
     "certificado_salud": "Gesundheitszeugnis",

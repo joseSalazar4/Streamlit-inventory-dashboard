@@ -36,9 +36,31 @@ def inject_css() -> None:
         [data-testid="stToolbar"],
         [data-testid="stAppDeployButton"],
         [data-testid="stMainMenu"] { display:none !important; }
+        header[data-testid="stHeader"]:has([data-testid="stExpandSidebarButton"])
+        [data-testid="stToolbar"] {
+            display:flex !important;
+        }
         div[data-testid="stStatusWidget"],
         div[data-testid="stDecoration"] { display:none !important; }
         header[data-testid="stHeader"] { background:transparent; }
+        [data-testid="stExpandSidebarButton"] {
+            width:38px !important;
+            height:38px !important;
+            display:inline-flex !important;
+            align-items:center !important;
+            justify-content:center !important;
+            margin:.8rem 0 0 .8rem !important;
+            background:rgba(255,253,248,.94) !important;
+            border:1px solid rgba(21,79,49,.18) !important;
+            border-radius:10px !important;
+            color:var(--cas-green-dark) !important;
+            box-shadow:0 8px 18px rgba(57,57,57,.05) !important;
+        }
+        [data-testid="stExpandSidebarButton"] {
+            visibility:visible !important;
+            opacity:1 !important;
+            z-index:1000 !important;
+        }
         [data-testid="stSidebarCollapsedControl"] {
             display:block !important;
             visibility:visible !important;
@@ -192,6 +214,81 @@ def inject_css() -> None:
         }
         .progress-fill { height:100%; background:linear-gradient(90deg, #1d5a39 0%, #134228 100%); }
         .progress-number { font-weight:800; color:#18402a; }
+        [class*="st-key-portal_help_card"] {
+            max-width:1120px;
+            margin:0 0 1.05rem;
+            padding:0;
+            border:1px solid rgba(21,79,49,.12);
+            border-left:5px solid rgba(27,89,54,.72);
+            border-radius:14px;
+            background:rgba(255,255,255,.66);
+            box-shadow:0 8px 20px rgba(57,57,57,.045);
+            overflow:hidden;
+        }
+        [class*="st-key-portal_help_card"] details {
+            border:0 !important;
+            background:transparent !important;
+        }
+        [class*="st-key-portal_help_card"] summary {
+            min-height:50px;
+            display:flex;
+            align-items:center;
+            justify-content:flex-start;
+            gap:.5rem;
+            padding:0 1.35rem;
+            color:#123f29;
+            font-weight:900 !important;
+            text-align:left;
+            cursor:pointer;
+            list-style:none;
+        }
+        [class*="st-key-portal_help_card"] summary:focus,
+        [class*="st-key-portal_help_card"] summary:focus-visible {
+            outline:none !important;
+            box-shadow:none !important;
+        }
+        [class*="st-key-portal_help_card"] summary p {
+            flex:0 0 auto !important;
+            margin:0 !important;
+            color:#123f29 !important;
+            font-weight:900 !important;
+            text-align:left !important;
+        }
+        [class*="st-key-portal_help_card"] summary > span,
+        [class*="st-key-portal_help_card"] summary > span > div {
+            width:auto !important;
+            flex:0 0 auto !important;
+            display:flex !important;
+            align-items:center !important;
+            justify-content:flex-start !important;
+            gap:.42rem !important;
+        }
+        [class*="st-key-portal_help_card"] [data-testid="stExpanderDetails"] {
+            padding:.65rem 1.35rem 1.15rem !important;
+        }
+        [class*="st-key-portal_help_card"] [data-testid="stExpanderDetails"] p {
+            max-width:980px;
+            margin:0;
+            color:#375a48;
+            font-size:.9rem;
+            line-height:1.65;
+            text-align:left;
+        }
+        .inline-info-symbol {
+            width:17px;
+            height:17px;
+            display:inline-grid;
+            place-items:center;
+            margin:0 .18rem;
+            border:1px solid rgba(21,79,49,.5);
+            border-radius:50%;
+            background:#f3faf1;
+            color:#123f29;
+            font-size:.65rem;
+            font-weight:900;
+            line-height:1;
+            vertical-align:.08rem;
+        }
         .st-key-auth_shell {
             width:min(100%, 560px) !important;
             max-width:560px !important;
@@ -374,6 +471,7 @@ def inject_css() -> None:
         }
 
         [class*="st-key-upload_item_"] {
+            position:relative;
             background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(240,247,236,.86));
             border:1px solid rgba(21,79,49,.14);
             border-left:8px solid rgba(27,89,54,.78);
@@ -381,18 +479,117 @@ def inject_css() -> None:
             padding:.9rem .95rem 1rem;
             margin-top:.25rem;
             box-shadow:0 10px 22px rgba(57,57,57,.05);
+            overflow:visible;
         }
         .upload-title-row {
             display:flex;
             align-items:center;
             justify-content:space-between;
             gap:.75rem;
+            overflow:visible;
+        }
+        .document-title-group {
+            display:flex;
+            align-items:center;
+            gap:.42rem;
+            min-width:0;
+            overflow:visible;
         }
         .upload-summary .stat-title {
             margin:0;
             color:#123f29;
             font-size:.98rem;
             line-height:1.25;
+        }
+        .doc-info-icon {
+            position:relative;
+            width:22px;
+            height:22px;
+            display:inline-grid;
+            place-items:center;
+            flex:0 0 auto;
+            border:1px solid rgba(21,79,49,.5);
+            border-radius:50%;
+            color:#123f29;
+            background:#f3faf1;
+            box-shadow:0 2px 6px rgba(16,59,37,.12);
+            font-size:.76rem;
+            font-weight:900;
+            line-height:1;
+            cursor:help;
+            transition:background .14s ease, border-color .14s ease, transform .14s ease, box-shadow .14s ease;
+        }
+        .doc-info-icon:hover,
+        .doc-info-icon:focus-visible {
+            background:#1b5936;
+            border-color:#1b5936;
+            color:#fffdf8;
+            transform:translateY(-1px);
+            box-shadow:0 6px 14px rgba(16,59,37,.2);
+            outline:none;
+        }
+        .doc-info-tooltip {
+            position:absolute;
+            z-index:20;
+            left:50%;
+            bottom:calc(100% + 10px);
+            width:min(360px, 76vw);
+            transform:translate(-50%, 4px);
+            padding:.72rem .82rem .68rem;
+            border:1px solid rgba(21,79,49,.16);
+            border-radius:12px;
+            background:#fffdf8;
+            color:#244d38;
+            box-shadow:0 14px 30px rgba(16,59,37,.16);
+            text-align:left;
+            pointer-events:none;
+            opacity:0;
+            visibility:hidden;
+            transition:opacity .14s ease, transform .14s ease, visibility .14s ease;
+        }
+        .doc-info-tooltip ul {
+            margin:0;
+            padding-left:1.05rem;
+        }
+        .doc-info-tooltip li {
+            margin:.18rem 0;
+            color:#244d38;
+            font-size:.78rem;
+            font-weight:500;
+            line-height:1.34;
+        }
+        .doc-info-tooltip strong {
+            font-weight:900;
+            color:#123f29;
+        }
+        .doc-info-icon::before {
+            content:"";
+            position:absolute;
+            z-index:21;
+            left:50%;
+            bottom:calc(100% + 4px);
+            width:10px;
+            height:10px;
+            transform:translateX(-50%) rotate(45deg);
+            background:#fffdf8;
+            border-right:1px solid rgba(21,79,49,.16);
+            border-bottom:1px solid rgba(21,79,49,.16);
+            opacity:0;
+            visibility:hidden;
+            pointer-events:none;
+            transition:opacity .14s ease, visibility .14s ease;
+        }
+        .doc-info-icon:hover .doc-info-tooltip,
+        .doc-info-icon:focus-visible .doc-info-tooltip,
+        .doc-info-icon:hover::before,
+        .doc-info-icon:focus-visible::before {
+            opacity:1;
+            visibility:visible;
+            transform:translate(-50%, 0);
+        }
+        .doc-info-icon:hover::before,
+        .doc-info-icon:focus-visible::before {
+            transform:translateX(-50%) rotate(45deg);
         }
         .file-chip {
             display:inline-flex;
@@ -407,7 +604,7 @@ def inject_css() -> None:
         }
         .upload-divider {
             height:1px;
-            margin:.65rem 0 .55rem;
+            margin:.6rem 0 .52rem;
             background:linear-gradient(90deg, rgba(27,89,54,.28), rgba(27,89,54,.05));
         }
         .upload-summary ul {
@@ -433,6 +630,68 @@ def inject_css() -> None:
             border:1px dashed rgba(21,79,49,.24) !important;
             padding:.62rem !important;
             min-height:76px !important;
+        }
+        [class*="st-key-upload_item_"] [data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p {
+            font-size:0 !important;
+            line-height:0 !important;
+        }
+        [class*="st-key-upload_item_"] [data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p::after {
+            content:"Subir";
+            font-size:.88rem;
+            line-height:1.2;
+        }
+        .doc-status {
+            display:flex;
+            align-items:flex-start;
+            gap:.5rem;
+            margin:.65rem 0 .7rem;
+            padding:.62rem .68rem;
+            border-radius:12px;
+            border:1px solid transparent;
+            font-size:.82rem;
+            line-height:1.35;
+        }
+        .doc-status .material-symbols-rounded {
+            font-family:"Material Symbols Rounded";
+            font-size:1.05rem;
+            line-height:1.15;
+            font-style:normal;
+            letter-spacing:normal;
+            text-transform:none;
+            font-feature-settings:"liga";
+            font-variation-settings:"FILL" 0, "wght" 700, "GRAD" 0, "opsz" 24;
+            flex-shrink:0;
+        }
+        .doc-status-title {
+            font-weight:850;
+        }
+        .doc-status-copy {
+            margin-top:.1rem;
+            opacity:.86;
+        }
+        .doc-status-success {
+            background:#e6f5e5;
+            border-color:#cbe8c8;
+            color:#1b5936;
+        }
+        .doc-status-info {
+            background:#eef5ff;
+            border-color:#dbeafe;
+            color:#1d4f85;
+        }
+        .doc-status-warning {
+            background:#fff7d6;
+            border-color:#facc15;
+            color:#92400e;
+            box-shadow:0 8px 18px rgba(146,64,14,.08);
+        }
+        .doc-status-warning .doc-status-title {
+            color:#78350f;
+        }
+        .doc-status-error {
+            background:#ffe9e9;
+            border-color:#fecaca;
+            color:#b91c1c;
         }
         [class*="st-key-phase_downloads_"] {
             margin:.25rem 0 .35rem;
@@ -556,16 +815,20 @@ def inject_css() -> None:
             .block-container > [data-testid="stVerticalBlock"] {
                 gap:.85rem !important;
             }
+            [data-testid="stExpandSidebarButton"],
             [data-testid="stSidebarCollapsedControl"] {
                 z-index:1000 !important;
             }
+            [data-testid="stExpandSidebarButton"],
             [data-testid="stSidebarCollapsedControl"] button {
                 color:transparent !important;
                 font-size:0 !important;
             }
+            [data-testid="stExpandSidebarButton"] > *,
             [data-testid="stSidebarCollapsedControl"] button > * {
                 display:none !important;
             }
+            [data-testid="stExpandSidebarButton"]::before,
             [data-testid="stSidebarCollapsedControl"] button::before {
                 content:"\\2630";
                 color:var(--cas-green-dark);
@@ -609,6 +872,9 @@ def inject_css() -> None:
                 width:100%;
                 margin:0 auto;
                 padding:.9rem;
+            }
+            [class*="st-key-portal_help_card"] {
+                margin:.15rem auto 1rem;
             }
             .progress-head,
             .progress-meta {
@@ -749,4 +1015,197 @@ def inject_css() -> None:
         </style>
         """.replace("__CAS_NAV_LOGO__", nav_logo),
         unsafe_allow_html=True,
+    )
+    inject_global_loading_overlay()
+
+
+def inject_global_loading_overlay() -> None:
+    st.iframe(
+        """
+        <script>
+        (function () {
+            const parentDoc = window.parent && window.parent.document;
+            if (!parentDoc) return;
+            const parentWin = parentDoc.defaultView || window.parent;
+            if (!parentWin) return;
+
+            const STYLE_ID = "cas-global-loading-style";
+            const OVERLAY_ID = "cas-global-loading-overlay";
+            const ACTIVE_CLASS = "cas-global-loading-active";
+
+            if (!parentDoc.getElementById(STYLE_ID)) {
+                const style = parentDoc.createElement("style");
+                style.id = STYLE_ID;
+                style.textContent = `
+                    #${OVERLAY_ID} {
+                        position: fixed;
+                        inset: 0;
+                        z-index: 2147483000;
+                        display: none;
+                        background: transparent;
+                        pointer-events: all;
+                    }
+                    body.${ACTIVE_CLASS} #${OVERLAY_ID} {
+                        display: block;
+                    }
+                    body.${ACTIVE_CLASS} .stApp {
+                        animation: cas-loading-pulse .95s ease-in-out infinite alternate;
+                    }
+                    body.${ACTIVE_CLASS} [data-testid="stSidebar"],
+                    body.${ACTIVE_CLASS} [data-testid="stHeader"],
+                    body.${ACTIVE_CLASS} [data-testid="stToolbar"],
+                    body.${ACTIVE_CLASS} [data-testid="stExpandSidebarButton"],
+                    body.${ACTIVE_CLASS} [data-testid="stSidebarCollapsedControl"] {
+                        animation: cas-loading-pulse .95s ease-in-out infinite alternate !important;
+                    }
+                    @keyframes cas-loading-pulse {
+                        from { opacity: .34; }
+                        to { opacity: .62; }
+                    }
+                    @media (prefers-reduced-motion: reduce) {
+                        body.${ACTIVE_CLASS} .stApp,
+                        body.${ACTIVE_CLASS} [data-testid="stSidebar"],
+                        body.${ACTIVE_CLASS} [data-testid="stHeader"],
+                        body.${ACTIVE_CLASS} [data-testid="stToolbar"],
+                        body.${ACTIVE_CLASS} [data-testid="stExpandSidebarButton"],
+                        body.${ACTIVE_CLASS} [data-testid="stSidebarCollapsedControl"] {
+                            animation: none !important;
+                            opacity: .42 !important;
+                        }
+                    }
+                `;
+                parentDoc.head.appendChild(style);
+            }
+
+            if (!parentDoc.getElementById(OVERLAY_ID)) {
+                const overlay = parentDoc.createElement("div");
+                overlay.id = OVERLAY_ID;
+                overlay.setAttribute("aria-hidden", "true");
+                parentDoc.body.appendChild(overlay);
+            }
+
+            function visibleText(element) {
+                if (!element) return "";
+                return [
+                    element.innerText || "",
+                    element.getAttribute("aria-label") || "",
+                    element.getAttribute("title") || "",
+                    element.getAttribute("data-testid") || "",
+                    String(element.className || "")
+                ].join(" ").toLowerCase();
+            }
+
+            function elementLooksRunning(element) {
+                const text = visibleText(element);
+                return (
+                    text.includes("running") ||
+                    text.includes("cargando") ||
+                    text.includes("loading") ||
+                    text.includes("validando") ||
+                    text.includes("spinner")
+                );
+            }
+
+            function hasStaleContent() {
+                const candidates = parentDoc.querySelectorAll('[class*="stale"], [class*="Stale"], [data-testid*="stale"]');
+                for (const element of candidates) {
+                    const style = parentDoc.defaultView.getComputedStyle(element);
+                    if (style.display !== "none" && style.visibility !== "hidden") {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function isStreamlitRunning() {
+                const statusWidgets = parentDoc.querySelectorAll('[data-testid="stStatusWidget"], [data-testid="stStatusWidget"] *');
+                for (const widget of statusWidgets) {
+                    if (elementLooksRunning(widget)) return true;
+                }
+
+                const spinners = parentDoc.querySelectorAll('[data-testid="stSpinner"], [data-testid="stSpinner"] *');
+                for (const spinner of spinners) {
+                    if (elementLooksRunning(spinner) || spinner.offsetParent !== null) return true;
+                }
+
+                const app = parentDoc.querySelector('.stApp, [data-testid="stApp"]');
+                if (app && elementLooksRunning(app)) return true;
+
+                return hasStaleContent();
+            }
+
+            function setLoading(active) {
+                if (active === parentWin.__casGlobalLoadingLastState) return;
+                parentWin.__casGlobalLoadingLastState = active;
+                if (parentWin.__casGlobalLoadingHideTimer) {
+                    parentWin.clearTimeout(parentWin.__casGlobalLoadingHideTimer);
+                    parentWin.__casGlobalLoadingHideTimer = null;
+                }
+                if (active) {
+                    parentDoc.body.classList.add(ACTIVE_CLASS);
+                } else {
+                    parentWin.__casGlobalLoadingHideTimer = parentWin.setTimeout(function () {
+                        parentDoc.body.classList.remove(ACTIVE_CLASS);
+                    }, 120);
+                }
+            }
+
+            function refreshLoadingState() {
+                setLoading(isStreamlitRunning() || Date.now() < (parentWin.__casGlobalInteractionLoadingUntil || 0));
+            }
+
+            function triggerInteractionLoading() {
+                parentWin.__casGlobalInteractionLoadingUntil = Date.now() + 1200;
+                setLoading(true);
+                parentWin.setTimeout(refreshLoadingState, 1300);
+            }
+
+            if (!parentWin.__casGlobalLoadingEventsAttached) {
+                parentDoc.addEventListener("click", function (event) {
+                    const target = event.target;
+                    if (!target || !target.closest) return;
+                    const interactive = target.closest(
+                        'button, a, input[type="file"], [role="button"], [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"]'
+                    );
+                    if (interactive && !interactive.disabled && interactive.getAttribute("aria-disabled") !== "true") {
+                        triggerInteractionLoading();
+                    }
+                }, true);
+                parentDoc.addEventListener("keydown", function (event) {
+                    if (event.key !== "Enter") return;
+                    const target = event.target;
+                    if (target && target.closest && target.closest("input, textarea, select")) {
+                        triggerInteractionLoading();
+                    }
+                }, true);
+                parentDoc.addEventListener("change", function (event) {
+                    const target = event.target;
+                    if (target && target.closest && target.closest('input[type="file"]')) {
+                        triggerInteractionLoading();
+                    }
+                }, true);
+                parentWin.__casGlobalLoadingEventsAttached = true;
+            }
+
+            if (parentWin.__casGlobalLoadingObserver) {
+                parentWin.__casGlobalLoadingObserver.disconnect();
+            }
+            parentWin.__casGlobalLoadingObserver = new parentWin.MutationObserver(refreshLoadingState);
+            parentWin.__casGlobalLoadingObserver.observe(parentDoc.body, {
+                subtree: true,
+                childList: true,
+                attributes: true,
+                attributeFilter: ["class", "style", "aria-label", "title", "data-testid"]
+            });
+
+            refreshLoadingState();
+            if (parentWin.__casGlobalLoadingInterval) {
+                parentWin.clearInterval(parentWin.__casGlobalLoadingInterval);
+            }
+            parentWin.__casGlobalLoadingInterval = parentWin.setInterval(refreshLoadingState, 250);
+        })();
+        </script>
+        """,
+        height=1,
+        width=1,
     )

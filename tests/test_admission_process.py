@@ -114,14 +114,21 @@ class AdmissionProcessTests(unittest.TestCase):
         self.assertEqual(
             labels,
             [
-                "Contrato firmado",
-                "Condiciones generales / AGBs",
+                "Contrato",
+                "AGBs",
                 "Reglas del programa CAS",
                 "Factura CAS",
-                "Factura asesoria Anne",
-                "Confirmacion de admision",
+                "Factura de asesoría",
+                "Confirmación de admisión",
             ],
         )
+
+    def test_all_documents_include_student_guidance_copy(self) -> None:
+        for phase in DEFAULT_PHASES:
+            for rule in phase["files"]:
+                self.assertTrue(rule.what_is, rule.key)
+                self.assertTrue(rule.what_to_do, rule.key)
+                self.assertTrue(rule.what_happens_next, rule.key)
 
     def test_image_extensions_share_one_readable_label(self) -> None:
         self.assertEqual(

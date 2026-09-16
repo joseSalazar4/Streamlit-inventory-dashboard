@@ -107,10 +107,10 @@ class BatchSubmissionTests(unittest.TestCase):
         refresh_progress.assert_called_once_with("EST-1")
         self.assertEqual(results[first_key]["storage_status"], "saved")
         self.assertEqual(results[second_key]["storage_status"], "ready_to_submit")
-        self.assertEqual(results[first_key]["message"], "File submitted.")
+        self.assertEqual(results[first_key]["message"], "CAS está revisando este documento.")
         self.assertEqual(
             results[second_key]["message"],
-            "File could not be submitted. Please try again.",
+            "El archivo no se pudo enviar. Inténtalo de nuevo.",
         )
         self.assertNotIn("CAS API", results[second_key]["message"])
         self.assertNotIn("Rejected", results[second_key]["message"])

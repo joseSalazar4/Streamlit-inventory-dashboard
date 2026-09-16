@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import mimetypes
+import time
 from typing import Any, Dict, Tuple
 
 import streamlit as st
@@ -69,7 +70,10 @@ def process_uploaded_file(phase_id: str, rule: FileRule) -> None:
     st.session_state.pending_uploads[result_key] = document
     st.session_state.validation[result_key] = {
         "ok": True,
-        "message": f"{message} {de('Ready to submit.', 'Bereit zum Senden.')}",
+        "message": de(
+            "Archivo seleccionado, pero aún no enviado. Haz click en Enviar archivos listos para enviarlo a CAS.",
+            "Datei ausgewaehlt, aber noch nicht gesendet. Klicke auf Ausgewaehlte Dateien senden, um sie an CAS zu senden.",
+        ),
         "file_name": document.file_name,
         "file_size": document.size,
         "sha256": document.sha256,
@@ -85,7 +89,7 @@ def submit_uploaded_files(
     student_id = str(user.get("student_id") or "").strip()
     user_token = str(user.get("api_user_token") or st.session_state.get("api_user_token") or "").strip()
     if not student_id:
-        raise ValueError(de("Your account is missing required information. Contact support.", "Deinem Konto fehlen erforderliche Informationen. Bitte kontaktiere CAS."))
+        raise ValueError(de("A tu cuenta le falta información requerida. Contacta a soporte.", "Deinem Konto fehlen erforderliche Informationen. Bitte kontaktiere CAS."))
 
     results: Dict[Tuple[str, str], Dict[str, Any]] = {}
     prepared: list[Tuple[Tuple[str, str], StudentFileUpload]] = []
@@ -94,7 +98,7 @@ def submit_uploaded_files(
         result = st.session_state.validation.get(result_key)
         document = st.session_state.pending_uploads.get(result_key)
         if not result or not result.get("ok") or document is None:
-            raise ValueError(f"{de('Choose a valid file for', 'Waehle vor dem Senden eine gueltige Datei fuer')} {rule.label}.")
+            raise ValueError(f"{de('Elige un archivo válido para', 'Waehle vor dem Senden eine gueltige Datei fuer')} {rule.label}.")
         results[result_key] = result
         if result.get("storage_status") == "saved":
             continue
@@ -126,7 +130,7 @@ def submit_uploaded_files(
             result.update(
                 {
                     "ok": True,
-                    "message": de("File could not be submitted. Please try again.", "Die Datei konnte nicht gesendet werden. Bitte versuche es erneut."),
+                    "message": de("El archivo no se pudo enviar. Inténtalo de nuevo.", "Die Datei konnte nicht gesendet werden. Bitte versuche es erneut."),
                     "storage_status": "ready_to_submit",
                 }
             )
@@ -136,7 +140,7 @@ def submit_uploaded_files(
         result.update(
             {
                 "ok": True,
-                "message": de("File submitted.", "Datei gesendet."),
+                "message": de("CAS está revisando este documento.", "CAS prueft dieses Dokument."),
                 "storage_status": "saved",
                 "document_id": response.get("document_id"),
                 "version": response.get("version"),
@@ -148,7 +152,9 @@ def submit_uploaded_files(
     if saved_any:
         try:
             st.session_state.admission_progress = get_admission_progress(student_id)
+            st.session_state.admission_progress_cached_at = time.time()
         except CasApiError:
+            st.session_state.pop("admission_progress_cached_at", None)
             pass
     return results
 

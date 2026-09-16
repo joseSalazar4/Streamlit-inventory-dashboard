@@ -3,9 +3,9 @@ name: cas-platform
 services:
   api:
     build:
-      context: ../cas-api
+      context: ../cas-api-repo
     env_file:
-      - ../cas-api/.env.api.local
+      - ../cas-api-repo/.env.api.local
     environment:
       CAS_ENVIRONMENT: prod
       CAS_API_HOST: 0.0.0.0

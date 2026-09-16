@@ -19,3 +19,6 @@ class FileRule:
     rejection_comment: str | None = None
     external_url: str | None = None
     template_available: bool | None = None
+    what_is: str = ""
+    what_to_do: str = ""
+    what_happens_next: str = ""
