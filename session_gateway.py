@@ -37,7 +37,7 @@ async def ws_proxy(request: web.Request) -> web.WebSocketResponse:
 async def proxy(request: web.Request) -> web.StreamResponse:
     if request.headers.get("Upgrade", "").lower()=="websocket": return await ws_proxy(request)
     async with ClientSession() as client:
-        async with client.request(request.method, _url(request), headers=_headers(request), data=request.body, allow_redirects=False) as upstream:
+        async with client.request(request.method, _url(request), headers=_headers(request), data=await request.read(), allow_redirects=False) as upstream:
             response=web.Response(status=upstream.status, body=await upstream.read())
             for k,v in upstream.headers.items():
                 if k.lower() not in {"content-length","connection","transfer-encoding"}: response.headers[k]=v
