@@ -14,3 +14,5 @@ tmp/
 
 # Private generated setup guide containing live local credentials.
 /output/pdf/CAS_environment_setup_private.pdf
+.cas_session_secret
+.cas_sessions.sqlite3*

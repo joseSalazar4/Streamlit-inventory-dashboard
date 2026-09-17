@@ -66,18 +66,11 @@ def main() -> int:
     )
     os.environ["STREAMLIT_GLOBAL_DEVELOPMENT_MODE"] = "false"
 
-    from streamlit.web import cli as streamlit_cli
+    os.environ["CAS_GATEWAY_PORT"] = str(args.port)
+    from session_gateway import main as gateway_main
 
-    sys.argv = [
-        "streamlit",
-        "run",
-        str(repo_root / "main.py"),
-        "--server.port",
-        str(args.port),
-    ]
-    if is_local:
-        sys.argv.extend(["--server.address", "127.0.0.1"])
-    return int(streamlit_cli.main() or 0)
+    sys.argv = ["session_gateway", "--app", str(repo_root / "main.py")]
+    return gateway_main()
 
 
 if __name__ == "__main__":
