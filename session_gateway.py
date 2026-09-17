@@ -18,11 +18,13 @@ async def clear(request: web.Request) -> web.Response:
     response = web.json_response({"ok":True}); response.del_cookie(COOKIE_NAME, **_cookie()); return response
 def _url(request: web.Request) -> str: return f"http://127.0.0.1:{os.getenv('CAS_STREAMLIT_INTERNAL_PORT','8504')}{request.rel_url}"
 def _headers(request: web.Request) -> dict[str,str]:
-    headers={k:v for k,v in request.headers.items() if k.lower() not in {"host","connection","upgrade","content-length"}}; headers["X-Forwarded-For"]=request.remote or ""; return headers
+    blocked={"host","connection","upgrade","content-length","sec-websocket-key","sec-websocket-version","sec-websocket-protocol","sec-websocket-extensions"}
+    headers={k:v for k,v in request.headers.items() if k.lower() not in blocked}; headers["Host"]=request.host; headers["X-Forwarded-For"]=request.remote or ""; return headers
 async def ws_proxy(request: web.Request) -> web.WebSocketResponse:
-    client_ws=web.WebSocketResponse(); await client_ws.prepare(request)
+    protocols=[item.strip() for item in request.headers.get("Sec-WebSocket-Protocol","").split(",") if item.strip()]
+    client_ws=web.WebSocketResponse(protocols=protocols); await client_ws.prepare(request)
     async with ClientSession() as client:
-        async with client.ws_connect(_url(request).replace("http://","ws://",1), headers=_headers(request)) as upstream:
+        async with client.ws_connect(_url(request).replace("http://","ws://",1), headers=_headers(request), protocols=protocols) as upstream:
             async def up() -> None:
                 async for message in upstream:
                     if message.type==WSMsgType.TEXT: await client_ws.send_str(message.data)
