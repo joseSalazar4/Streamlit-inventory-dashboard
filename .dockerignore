@@ -8,3 +8,4 @@ __pycache__
 .local
 output
 tmp
+.streamlit-python-packages
